@@ -28,7 +28,7 @@
             <button class="active" onclick="showSection('usuarios'); resetFormularioUsuarios();">👥 Usuarios</button>
             <button onclick="showSection('sujetos')">📋 Sujetos de Datos</button>
             <button onclick="showSection('miembros')">🏦 Miembros COAC</button>
-            <button onclick="showSection('productos')">💳 Productos Financieros</button>
+            <button onclick="showSection('productos'); resetFormularioProductos();">💳 Productos Financieros</button>
             <button onclick="showSection('consentimientos')">✅ Consentimientos</button>
             <button onclick="showSection('dsar')">📨 Solicitudes DSAR</button>
             <button onclick="showSection('incidentes')">⚠️ Incidentes</button>
@@ -322,22 +322,28 @@
         </div>
         
         <!-- PRODUCTOS FINANCIEROS -->
+        
+        <!-- PRODUCTOS FINANCIEROS -->
         <div id="productos" class="content-section">
             <h2 class="section-title">Productos Financieros</h2>
             
-            <form id="formProductos">
+            <form id="formProductos" method="POST" action="{{ route('productos.store') }}">
+                @csrf
+                <input type="hidden" name="_method" id="form_producto_method" value="POST">
+                <input type="hidden" name="id" id="producto_id">
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Código Producto *</label>
-                        <input type="text" name="codigo" >
+                        <input type="text" name="codigo" id="producto_codigo">
                     </div>
                     <div class="form-group">
                         <label>Nombre del Producto *</label>
-                        <input type="text" name="nombre" >
+                        <input type="text" name="nombre" id="producto_nombre">
                     </div>
                     <div class="form-group">
                         <label>Tipo *</label>
-                        <select name="tipo" >
+                        <select name="tipo" id="producto_tipo">
                             <option value="">Seleccionar...</option>
                             <option value="ahorro">Cuenta de Ahorro</option>
                             <option value="credito">Crédito</option>
@@ -346,43 +352,99 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label>Descripción</label>
-                    <textarea name="descripcion" rows="3"></textarea>
+                    <textarea name="descripcion" id="producto_descripcion" rows="3"></textarea>
                 </div>
+
                 <div class="form-group">
                     <label>Datos Personales Procesados</label>
-                    <textarea name="datos_procesados" rows="3" placeholder="Ej: Nombre, cédula, información financiera, historial crediticio..."></textarea>
+                    <textarea name="datos_procesados" id="producto_datos" rows="3"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Registrar Producto</button>
+
+                <button type="submit" class="btn btn-primary">Guardar Producto</button>
             </form>
             
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Código</th>
                             <th>Producto</th>
                             <th>Tipo</th>
-                            <th>Clientes Activos</th>
+                            <th>Descripción</th>
                             <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($productos as $producto)
                         <tr>
-                            <td>AH-001</td>
-                            <td>Ahorro Programado</td>
-                            <td>Ahorro</td>
-                            <td>342</td>
-                            <td><span class="badge badge-success">Activo</span></td>
+                            <td>{{ $producto->id }}</td>
+                            <td>{{ $producto->codigo }}</td>
+                            <td>{{ $producto->nombre }}</td>
+                            <td>
+                                @if($producto->tipo === 'ahorro')
+                                    <span class="badge badge-info">Cuenta de Ahorro</span>
+                                @elseif($producto->tipo === 'credito')
+                                    <span class="badge badge-success">Crédito</span>
+                                @elseif($producto->tipo === 'inversion')
+                                    <span class="badge badge-warning">Inversión</span>
+                                @elseif($producto->tipo === 'seguros')
+                                    <span class="badge badge-primary">Seguros</span>
+                                @endif
+                            </td>
+                            <td>{{ $producto->descripcion ? Str::limit($producto->descripcion, 40) : 'N/A' }}</td>
+                            <td>
+                                @if($producto->estado === 'activo')
+                                    <span class="badge badge-success">Activo</span>
+                                @else
+                                    <span class="badge badge-danger">Inactivo</span>
+                                @endif
+                            </td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 8px 15px;"
+                                    onclick="editarProducto(
+                                        {{ $producto->id }},
+                                        '{{ $producto->codigo }}',
+                                        '{{ $producto->nombre }}',
+                                        '{{ $producto->tipo }}',
+                                        '{{ str_replace("'", "\'", $producto->descripcion ?? '') }}',
+                                        '{{ str_replace("'", "\'", $producto->datos_procesados ?? '') }}'
+                                    )">
+                                    Editar
+                                </button>
+
+                                <form action="{{ route('productos.estado', $producto->id) }}"
+                                    method="POST"
+                                    style="display:inline;">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-warning">
+                                        Cambiar estado
+                                    </button>
+                                </form>
+
+                                <form action="{{ route('productos.destroy', $producto->id) }}"
+                                    method="POST"
+                                    style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button"
+                                        class="btn btn-danger"
+                                        onclick="confirmarEliminacion(this)">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
+                        @empty
                         <tr>
-                            <td>CR-002</td>
-                            <td>Crédito Consumo</td>
-                            <td>Crédito</td>
-                            <td>189</td>
-                            <td><span class="badge badge-success">Activo</span></td>
+                            <td colspan="7" style="text-align: center;">No hay productos registrados</td>
                         </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
