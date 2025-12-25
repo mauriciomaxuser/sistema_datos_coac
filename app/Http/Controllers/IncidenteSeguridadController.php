@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\IncidenteSeguridad;
 
 class IncidenteSeguridadController extends Controller
 {
@@ -11,7 +12,8 @@ class IncidenteSeguridadController extends Controller
      */
     public function index()
     {
-        //
+        $incidentes = IncidenteSeguridad::orderBy('id')->get();
+        return view('index', compact('incidentes'));
     }
 
     /**
@@ -27,7 +29,19 @@ class IncidenteSeguridadController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'codigo' => 'required|unique:incidentes_seguridad,codigo',
+            'fecha' => 'required|date',
+            'severidad' => 'required|string|max:30',
+            'descripcion' => 'required|string',
+            'tipo' => 'required|string|max:50',
+            'sujetos_afectados' => 'nullable|integer',
+            'estado' => 'required|string|max:30',
+        ]);
+
+        IncidenteSeguridad::create($request->all());
+
+        return redirect()->back()->with('success', 'Incidente registrado correctamente');
     }
 
     /**
@@ -43,7 +57,9 @@ class IncidenteSeguridadController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $incidentes = IncidenteSeguridad::orderBy('id')->get();
+        $incidenteEditar = IncidenteSeguridad::findOrFail($id);
+        return view('index', compact('incidentes', 'incidenteEditar'));
     }
 
     /**
@@ -51,7 +67,21 @@ class IncidenteSeguridadController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $incidente = IncidenteSeguridad::findOrFail($id);
+
+        $request->validate([
+            'codigo' => 'required|unique:incidentes_seguridad,codigo,' . $incidente->id,
+            'fecha' => 'required|date',
+            'severidad' => 'required|string|max:30',
+            'descripcion' => 'required|string',
+            'tipo' => 'required|string|max:50',
+            'sujetos_afectados' => 'nullable|integer',
+            'estado' => 'required|string|max:30',
+        ]);
+
+        $incidente->update($request->all());
+
+        return redirect()->back()->with('success', 'Incidente actualizado correctamente');
     }
 
     /**
@@ -59,6 +89,7 @@ class IncidenteSeguridadController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        IncidenteSeguridad::findOrFail($id)->delete();
+        return redirect()->back()->with('success', 'Incidente eliminado correctamente');
     }
 }

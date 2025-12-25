@@ -28,7 +28,7 @@
             <button class="active" onclick="showSection('usuarios'); resetFormularioUsuarios();">👥 Usuarios</button>
             <button onclick="showSection('sujetos')">📋 Sujetos de Datos</button>
             <button onclick="showSection('miembros')">🏦 Miembros COAC</button>
-            <button onclick="showSection('productos')">💳 Productos Financieros</button>
+            <button onclick="showSection('productos'); resetFormularioProductos();">💳 Productos Financieros</button>
             <button onclick="showSection('consentimientos')">✅ Consentimientos</button>
             <button onclick="showSection('dsar')">📨 Solicitudes DSAR</button>
             <button onclick="showSection('incidentes')">⚠️ Incidentes</button>
@@ -322,22 +322,28 @@
         </div>
         
         <!-- PRODUCTOS FINANCIEROS -->
+        
+        <!-- PRODUCTOS FINANCIEROS -->
         <div id="productos" class="content-section">
             <h2 class="section-title">Productos Financieros</h2>
             
-            <form id="formProductos">
+            <form id="formProductos" method="POST" action="{{ route('productos.store') }}">
+                @csrf
+                <input type="hidden" name="_method" id="form_producto_method" value="POST">
+                <input type="hidden" name="id" id="producto_id">
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Código Producto *</label>
-                        <input type="text" name="codigo" >
+                        <input type="text" name="codigo" id="producto_codigo">
                     </div>
                     <div class="form-group">
                         <label>Nombre del Producto *</label>
-                        <input type="text" name="nombre" >
+                        <input type="text" name="nombre" id="producto_nombre">
                     </div>
                     <div class="form-group">
                         <label>Tipo *</label>
-                        <select name="tipo" >
+                        <select name="tipo" id="producto_tipo">
                             <option value="">Seleccionar...</option>
                             <option value="ahorro">Cuenta de Ahorro</option>
                             <option value="credito">Crédito</option>
@@ -346,43 +352,99 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label>Descripción</label>
-                    <textarea name="descripcion" rows="3"></textarea>
+                    <textarea name="descripcion" id="producto_descripcion" rows="3"></textarea>
                 </div>
+
                 <div class="form-group">
                     <label>Datos Personales Procesados</label>
-                    <textarea name="datos_procesados" rows="3" placeholder="Ej: Nombre, cédula, información financiera, historial crediticio..."></textarea>
+                    <textarea name="datos_procesados" id="producto_datos" rows="3"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Registrar Producto</button>
+
+                <button type="submit" class="btn btn-primary">Guardar Producto</button>
             </form>
             
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Código</th>
                             <th>Producto</th>
                             <th>Tipo</th>
-                            <th>Clientes Activos</th>
+                            <th>Descripción</th>
                             <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($productos as $producto)
                         <tr>
-                            <td>AH-001</td>
-                            <td>Ahorro Programado</td>
-                            <td>Ahorro</td>
-                            <td>342</td>
-                            <td><span class="badge badge-success">Activo</span></td>
+                            <td>{{ $producto->id }}</td>
+                            <td>{{ $producto->codigo }}</td>
+                            <td>{{ $producto->nombre }}</td>
+                            <td>
+                                @if($producto->tipo === 'ahorro')
+                                    <span class="badge badge-info">Cuenta de Ahorro</span>
+                                @elseif($producto->tipo === 'credito')
+                                    <span class="badge badge-success">Crédito</span>
+                                @elseif($producto->tipo === 'inversion')
+                                    <span class="badge badge-warning">Inversión</span>
+                                @elseif($producto->tipo === 'seguros')
+                                    <span class="badge badge-primary">Seguros</span>
+                                @endif
+                            </td>
+                            <td>{{ $producto->descripcion ? Str::limit($producto->descripcion, 40) : 'N/A' }}</td>
+                            <td>
+                                @if($producto->estado === 'activo')
+                                    <span class="badge badge-success">Activo</span>
+                                @else
+                                    <span class="badge badge-danger">Inactivo</span>
+                                @endif
+                            </td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 8px 15px;"
+                                    onclick="editarProducto(
+                                        {{ $producto->id }},
+                                        '{{ $producto->codigo }}',
+                                        '{{ $producto->nombre }}',
+                                        '{{ $producto->tipo }}',
+                                        '{{ str_replace("'", "\'", $producto->descripcion ?? '') }}',
+                                        '{{ str_replace("'", "\'", $producto->datos_procesados ?? '') }}'
+                                    )">
+                                    Editar
+                                </button>
+
+                                <form action="{{ route('productos.estado', $producto->id) }}"
+                                    method="POST"
+                                    style="display:inline;">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-warning">
+                                        Cambiar estado
+                                    </button>
+                                </form>
+
+                                <form action="{{ route('productos.destroy', $producto->id) }}"
+                                    method="POST"
+                                    style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button"
+                                        class="btn btn-danger"
+                                        onclick="confirmarEliminacion(this)">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
+                        @empty
                         <tr>
-                            <td>CR-002</td>
-                            <td>Crédito Consumo</td>
-                            <td>Crédito</td>
-                            <td>189</td>
-                            <td><span class="badge badge-success">Activo</span></td>
+                            <td colspan="7" style="text-align: center;">No hay productos registrados</td>
                         </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -552,95 +614,184 @@
         
         <!-- INCIDENTES -->
         <div id="incidentes" class="content-section">
-            <h2 class="section-title">Registro de Incidentes de Seguridad</h2>
-            
-            <div class="alert alert-danger">
-                <strong>⚠️ Atención:</strong> Registre todos los incidentes de seguridad que involucren datos personales
+    <h2 class="section-title">Registro de Incidentes de Seguridad</h2>
+
+    <div class="alert alert-danger">
+        <strong>⚠️ Atención:</strong> Registre todos los incidentes de seguridad que involucren datos personales
+    </div>
+
+    <!-- Formulario para crear/editar incidente -->
+    <form id="formIncidentes" method="POST" action="{{ route('incidentes.store') }}">
+        @csrf
+        <input type="hidden" name="_method" id="form_incidente_method" value="POST">
+        <input type="hidden" id="incidente_id">
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Código de Incidente *</label>
+                <input type="text" name="codigo" id="codigo">
             </div>
-            
-            <form id="formIncidentes">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Código de Incidente *</label>
-                        <input type="text" name="codigo" >
-                    </div>
-                    <div class="form-group">
-                        <label>Fecha del Incidente *</label>
-                        <input type="datetime-local" name="fecha" >
-                    </div>
-                    <div class="form-group">
-                        <label>Severidad *</label>
-                        <select name="severidad" >
-                            <option value="">Seleccionar...</option>
-                            <option value="baja">Baja</option>
-                            <option value="media">Media</option>
-                            <option value="alta">Alta</option>
-                            <option value="critica">Crítica</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Descripción del Incidente *</label>
-                    <textarea name="descripcion" rows="4" ></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Tipo de Incidente *</label>
-                        <select name="tipo" >
-                            <option value="">Seleccionar...</option>
-                            <option value="fuga">Fuga de Información</option>
-                            <option value="acceso">Acceso No Autorizado</option>
-                            <option value="perdida">Pérdida de Datos</option>
-                            <option value="ransomware">Ransomware</option>
-                            <option value="otro">Otro</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Sujetos Afectados</label>
-                        <input type="number" name="afectados">
-                    </div>
-                    <div class="form-group">
-                        <label>Estado *</label>
-                        <select name="estado" >
-                            <option value="abierto">Abierto</option>
-                            <option value="investigacion">En Investigación</option>
-                            <option value="contenido">Contenido</option>
-                            <option value="resuelto">Resuelto</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Registrar Incidente</button>
-            </form>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Fecha</th>
-                            <th>Tipo</th>
-                            <th>Severidad</th>
-                            <th>Afectados</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>INC-2024-001</td>
-                            <td>05/12/2024 14:30</td>
-                            <td>Acceso No Autorizado</td>
-                            <td><span class="badge badge-danger">Crítica</span></td>
-                            <td>125</td>
-                            <td><span class="badge badge-warning">Investigación</span></td>
-                            <td>
-                                <button class="btn btn-secondary" style="padding: 8px 15px;">Ver</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="form-group">
+                <label>Fecha del Incidente *</label>
+                <input type="datetime-local" name="fecha" id="fecha">
+            </div>
+            <div class="form-group">
+                <label>Severidad *</label>
+                <select name="severidad" id="severidad">
+                    <option value="">Seleccionar...</option>
+                    <option value="baja">Baja</option>
+                    <option value="media">Media</option>
+                    <option value="alta">Alta</option>
+                    <option value="critica">Crítica</option>
+                </select>
             </div>
         </div>
+
+        <div class="form-group">
+            <label>Descripción del Incidente *</label>
+            <textarea name="descripcion" id="descripcion" rows="4"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Tipo de Incidente *</label>
+                <select name="tipo" id="tipo">
+                    <option value="">Seleccionar...</option>
+                    <option value="fuga">Fuga de Información</option>
+                    <option value="acceso">Acceso No Autorizado</option>
+                    <option value="perdida">Pérdida de Datos</option>
+                    <option value="ransomware">Ransomware</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Sujetos Afectados</label>
+                <input type="number" name="sujetos_afectados" id="sujetos_afectados">
+            </div>
+            <div class="form-group">
+                <label>Estado *</label>
+                <select name="estado" id="estado">
+                    <option value="abierto">Abierto</option>
+                    <option value="investigacion">En Investigación</option>
+                    <option value="contenido">Contenido</option>
+                    <option value="resuelto">Resuelto</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Registrar Incidente</button>
+    </form>
+
+    <!-- Tabla de incidentes -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Severidad</th>
+                    <th>Afectados</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($incidentes as $incidente)
+                <tr>
+                    <td>{{ $incidente->codigo }}</td>
+                    <td>{{ \Carbon\Carbon::parse($incidente->fecha)->format('d/m/Y H:i') }}</td>
+                    <td>{{ $incidente->tipo }}</td>
+                    <td>
+                        <span class="badge 
+                            @if($incidente->severidad=='baja') badge-success
+                            @elseif($incidente->severidad=='media') badge-warning
+                            @elseif($incidente->severidad=='alta') badge-danger
+                            @else badge-dark @endif">
+                            {{ ucfirst($incidente->severidad) }}
+                        </span>
+                    </td>
+                    <td>{{ $incidente->sujetos_afectados ?? 0 }}</td>
+                    <td>
+                        <span class="badge 
+                            @if($incidente->estado=='abierto') badge-info
+                            @elseif($incidente->estado=='investigacion') badge-warning
+                            @elseif($incidente->estado=='contenido') badge-secondary
+                            @else badge-success @endif">
+                            {{ ucfirst($incidente->estado) }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary"
+                            onclick="editarIncidente(
+                                '{{ $incidente->id }}',
+                                '{{ $incidente->codigo }}',
+                                '{{ $incidente->fecha }}',
+                                '{{ $incidente->severidad }}',
+                                '{{ $incidente->descripcion }}',
+                                '{{ $incidente->tipo }}',
+                                '{{ $incidente->sujetos_afectados }}',
+                                '{{ $incidente->estado }}'
+                            )">
+                            Editar
+                        </button>
+
+                        <form action="{{ route('incidentes.destroy', $incidente->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" class="btn btn-danger" onclick="confirmarEliminacion(this)">
+                                Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+function editarIncidente(id, codigo, fecha, severidad, descripcion, tipo, afectados, estado){
+    document.getElementById('incidente_id').value = id;
+    document.getElementById('codigo').value = codigo;
+    document.getElementById('fecha').value = fecha.replace(' ', 'T'); // Para datetime-local
+    document.getElementById('severidad').value = severidad;
+    document.getElementById('descripcion').value = descripcion;
+    document.getElementById('tipo').value = tipo;
+    document.getElementById('sujetos_afectados').value = afectados;
+    document.getElementById('estado').value = estado;
+
+    document.getElementById('form_incidente_method').value = 'PUT';
+    document.getElementById('formIncidentes').action = '/incidentes/' + id;
+}
+
+// SweetAlert para confirmar eliminación
+function confirmarEliminacion(btn){
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "No podrás revertir esto",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            btn.closest('form').submit();
+        }
+    });
+}@if(session('success'))
+Swal.fire({
+    icon: 'success',
+    title: '¡Éxito!',
+    text: '{{ session("success") }}',
+    timer: 2500,
+    showConfirmButton: false
+});
+@endif
+</script>
+
         
         <!-- ACTIVIDADES DE PROCESAMIENTO -->
         <div id="procesamiento" class="content-section">
