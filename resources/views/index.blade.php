@@ -753,6 +753,11 @@
 </div>
 <script>
 function editarIncidente(id, codigo, fecha, severidad, descripcion, tipo, afectados, estado){
+    Swal.fire({
+                icon: 'info',
+                title: 'Editar Incidente',
+                text: 'El formulario ha entrado en modo edición'
+            });
     document.getElementById('incidente_id').value = id;
     document.getElementById('codigo').value = codigo;
     document.getElementById('fecha').value = fecha.replace(' ', 'T'); // Para datetime-local
