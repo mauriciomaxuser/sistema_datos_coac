@@ -189,6 +189,7 @@
                             <th>Nombre</th>
                             <th>Email</th>
                             <th>Teléfono</th>
+                            
                             <th>Tipo</th>
                             <th>Acciones</th>
                         </tr>
