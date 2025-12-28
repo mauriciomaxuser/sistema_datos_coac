@@ -13,6 +13,9 @@
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <script src="{{ asset('scripts/scripts.js') }}"></script>
     
 
@@ -25,17 +28,47 @@
         </div>
         
         <div class="nav-tabs">
-            <button class="active" onclick="showSection('usuarios'); resetFormularioUsuarios();">👥 Usuarios</button>
-            <button onclick="showSection('sujetos')">📋 Sujetos de Datos</button>
-            <button onclick="showSection('miembros')">🏦 Miembros COAC</button>
-            <button onclick="showSection('productos'); resetFormularioProductos();">💳 Productos Financieros</button>
-            <button onclick="showSection('consentimientos'); resetFormularioConsentimientos();">✅ Consentimientos</button>
-            <button onclick="showSection('dsar')">📨 Solicitudes DSAR</button>
-            <button onclick="showSection('incidentes')">⚠️ Incidentes</button>
-            <button onclick="showSection('procesamiento')">⚙️ Act. Procesamiento</button>
-            <button onclick="showSection('auditorias')">🔍 Auditorías</button>
-            <button onclick="showSection('reportes')">📊 Reportes</button>
+            <button class="active" onclick="showSection('usuarios'); resetFormularioUsuarios();">
+                <i class="fa-solid fa-users"></i> Usuarios
+            </button>
+
+            <button onclick="showSection('sujetos')">
+                <i class="fa-solid fa-id-card"></i> Sujetos de Datos
+            </button>
+
+            <button onclick="showSection('miembros')">
+                <i class="fa-solid fa-building-columns"></i> Miembros COAC
+            </button>
+
+            <button onclick="showSection('productos'); resetFormularioProductos();">
+                <i class="fa-solid fa-credit-card"></i> Productos Financieros
+            </button>
+
+            <button onclick="showSection('consentimientos'); resetFormularioConsentimientos();">
+                <i class="fa-solid fa-check-circle"></i> Consentimientos
+            </button>
+
+            <button onclick="showSection('dsar')">
+                <i class="fa-solid fa-envelope-open-text"></i> Solicitudes DSAR
+            </button>
+
+            <button onclick="showSection('incidentes')">
+                <i class="fa-solid fa-triangle-exclamation"></i> Incidentes
+            </button>
+
+            <button onclick="showSection('procesamiento')">
+                <i class="fa-solid fa-gears"></i> Act. Procesamiento
+            </button>
+
+            <button onclick="showSection('auditorias')">
+                <i class="fa-solid fa-magnifying-glass"></i> Auditorías
+            </button>
+
+            <button onclick="showSection('reportes')">
+                <i class="fa-solid fa-chart-column"></i> Reportes
+            </button>
         </div>
+
         
         <!-- USUARIOS ----------------------------------------------------------------------------------------->
         <div id="usuarios" class="content-section active">
@@ -451,7 +484,7 @@
             </div>
         </div>
         
-        <!-- CONSENTIMIENTOS -->
+        <!-- CONSENTIMIENTOS ------------------------------------------------------------------------------------>
         <div id="consentimientos" class="content-section">
             <h2 class="section-title">Gestión de Consentimientos</h2>
             
@@ -599,7 +632,7 @@
             </div>
         </div>
         
-        <!-- SOLICITUDES DSAR -->
+        <!-- SOLICITUDES DSAR ---------------------------------------------------------------------------->
         <div id="dsar" class="content-section">
             <h2 class="section-title">Solicitudes de Derechos (DSAR)</h2>
             <p style="margin-bottom: 20px; color: #666;">Gestión de solicitudes de Acceso, Rectificación, Cancelación y Oposición</p>
@@ -682,7 +715,7 @@
             </div>
         </div>
         
-        <!-- INCIDENTES -->
+        <!-- INCIDENTES------------------------------------------------------------------------------------->
         <div id="incidentes" class="content-section">
     <h2 class="section-title">Registro de Incidentes de Seguridad</h2>
 

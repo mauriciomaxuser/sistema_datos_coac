@@ -15,7 +15,8 @@
             });
             event.target.classList.add('active');
         }
-        
+        //SUJETOS DE DATOS Y USUARIOS----------------------------------------------------------------------
+        //-------------------------------------------------------------------------------------------------
         // reset formulario usuarios ------------------------
         function resetFormularioUsuarios() {
             $('#formUsuarios').attr('action', '/usuarios');
@@ -27,10 +28,7 @@
             $('#rol').val('');
 
             $('button[type="submit"]').text('Agregar Usuario');
-        }
-
-
-        
+        }    
         //PARA EDITAR USUARIO ----------------------------------------------
         function editarUsuario(id, nombre, email, rol) {
             Swal.fire({
@@ -49,11 +47,6 @@
 
             $('button[type="submit"]').text('Actualizar Usuario');
         }
-
-
-
-
-
         //  EDITAR SUJETOS --------------------
         function editarSujeto(id, cedula, nombre, email, telefono, direccion, tipo) {
             Swal.fire({
@@ -119,14 +112,9 @@
     $('.invalid-feedback').remove();
 }
 
-
-
-
-
-        
     $(document).ready(function () {
 
-    /* ===== MÉTODOS PERSONALIZADOS ===== */
+    //-----VALIDACIONES
     $.validator.addMethod("soloLetras", function (value, element) {
         return this.optional(element) || /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value);
     }, "Solo se permiten letras");
@@ -235,7 +223,8 @@
         }
     });
 });
-    // productos finacieros
+    // productos finacieros----------------------------------------------------------------
+    //-------------------------------------------------------------------------------------
     // ========== MOSTRAR SECCIONES ==========
 function showSection(sectionId) {
     const sections = document.querySelectorAll('.content-section');
