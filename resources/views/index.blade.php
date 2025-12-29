@@ -1025,7 +1025,6 @@ Swal.fire({
         
         <!-- AUDITORÍAS -->
         <div id="auditorias" class="content-section">
-<<<<<<< HEAD
     <h2 class="section-title">Gestión de Auditorías</h2>
 
     {{-- FORMULARIO --}}
@@ -1246,100 +1245,8 @@ Swal.fire({
     </div>
 </div>
 
-=======
-            <h2 class="section-title">Gestión de Auditorías</h2>
-            
-            <form id="formAuditorias">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Código de Auditoría *</label>
-                        <input type="text" name="codigo_aud" >
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo de Auditoría *</label>
-                        <select name="tipo_aud" >
-                            <option value="">Seleccionar...</option>
-                            <option value="interna">Interna</option>
-                            <option value="externa">Externa</option>
-                            <option value="cumplimiento">Cumplimiento</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Auditor Responsable *</label>
-                        <input type="text" name="auditor" >
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Fecha de Inicio *</label>
-                        <input type="date" name="fecha_inicio" >
-                    </div>
-                    <div class="form-group">
-                        <label>Fecha de Finalización</label>
-                        <input type="date" name="fecha_fin">
-                    </div>
-                    <div class="form-group">
-                        <label>Estado *</label>
-                        <select name="estado_aud" >
-                            <option value="planificada">Planificada</option>
-                            <option value="proceso">En Proceso</option>
-                            <option value="completada">Completada</option>
-                            <option value="revisada">Revisada</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Alcance de la Auditoría</label>
-                    <textarea name="alcance" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Hallazgos y Observaciones</label>
-                    <textarea name="hallazgos" rows="4"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Registrar Auditoría</button>
-            </form>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Tipo</th>
-                            <th>Auditor</th>
-                            <th>Fecha Inicio</th>
-                            <th>Fecha Fin</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>AUD-2024-001</td>
-                            <td>Interna</td>
-                            <td>Juan Pérez</td>
-                            <td>01/11/2024</td>
-                            <td>15/11/2024</td>
-                            <td><span class="badge badge-success">Completada</span></td>
-                            <td>
-                                <button class="btn btn-secondary" style="padding: 8px 15px;">Ver</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>AUD-2024-002</td>
-                            <td>Externa</td>
-                            <td>Auditoría XYZ</td>
-                            <td>10/12/2024</td>
-                            <td>-</td>
-                            <td><span class="badge badge-warning">En Proceso</span></td>
-                            <td>
-                                <button class="btn btn-secondary" style="padding: 8px 15px;">Ver</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
->>>>>>> 05746bfd95eace9d7017846e0319a85396f8541b
+
+           
         
         <!-- REPORTES -->
         <div id="reportes" class="content-section">
