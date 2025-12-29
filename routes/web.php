@@ -5,6 +5,8 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\SujetoDatoController;
 use App\Http\Controllers\ProductoFinancieroController;
 use App\Http\Controllers\ConsentimientoController;
+use App\http\Controllers\ActividadProcesamientoController;
+
 use App\Http\Controllers\IncidenteSeguridadController;
 
 
@@ -37,3 +39,8 @@ Route::put('/incidentes/{id}', [IncidenteSeguridadController::class, 'update'])-
 Route::delete('/incidentes/{id}', [IncidenteSeguridadController::class, 'destroy'])->name('incidentes.destroy');
 Route::get('/incidentes/{id}/edit', [IncidenteSeguridadController::class, 'edit'])->name('incidentes.edit');
 Route::get('/incidentes', [IncidenteSeguridadController::class, 'index'])->name('incidentes.index');
+
+// rutas de actividades de procesamiento
+Route::get('/actividades-procesamiento', [ActividadProcesamientoController::class, 'index'])->name('actividades.index');
+Route::post('/actividades-procesamiento', [ActividadProcesamientoController::class, 'store'])->name('actividades.store');
+Route::get('/actividad-procesamiento/ver/{id}',[ActividadProcesamientoController::class, 'ver'])->name('actividad_procesamiento.ver');

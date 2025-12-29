@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <script src="{{ asset('scripts/scripts.js') }}"></script>
+
     
 
 </head>
@@ -900,95 +901,127 @@ Swal.fire({
 @endif
 </script>
 
-        
         <!-- ACTIVIDADES DE PROCESAMIENTO -->
-        <div id="procesamiento" class="content-section">
-            <h2 class="section-title">Registro de Actividades de Procesamiento</h2>
-            <p style="margin-bottom: 20px; color: #666;">Inventario de todas las actividades de tratamiento de datos personales</p>
-            
-            <form id="formProcesamiento">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Código de Actividad *</label>
-                        <input type="text" name="codigo_act" >
-                    </div>
-                    <div class="form-group">
-                        <label>Nombre de la Actividad *</label>
-                        <input type="text" name="nombre_act" >
-                    </div>
-                    <div class="form-group">
-                        <label>Responsable *</label>
-                        <input type="text" name="responsable" >
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Finalidad del Tratamiento *</label>
-                    <textarea name="finalidad" rows="3" ></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Base Legal *</label>
-                        <select name="base_legal" >
-                            <option value="">Seleccionar...</option>
-                            <option value="consentimiento">Consentimiento</option>
-                            <option value="contrato">Ejecución de Contrato</option>
-                            <option value="legal">Obligación Legal</option>
-                            <option value="interes">Interés Legítimo</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Categorías de Datos</label>
-                        <input type="text" name="categorias" placeholder="Ej: Identificativos, financieros, laborales">
-                    </div>
-                    <div class="form-group">
-                        <label>Plazo de Conservación</label>
-                        <input type="text" name="plazo" placeholder="Ej: 5 años">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Medidas de Seguridad Implementadas</label>
-                    <textarea name="medidas" rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Registrar Actividad</button>
-            </form>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Actividad</th>
-                            <th>Responsable</th>
-                            <th>Base Legal</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>ACT-001</td>
-                            <td>Gestión de Créditos</td>
-                            <td>Dpto. Crédito</td>
-                            <td>Contrato</td>
-                            <td><span class="badge badge-success">Activa</span></td>
-                            <td>
-                                <button class="btn btn-secondary" style="padding: 8px 15px;">Ver</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>ACT-002</td>
-                            <td>Marketing Digital</td>
-                            <td>Dpto. Marketing</td>
-                            <td>Consentimiento</td>
-                            <td><span class="badge badge-success">Activa</span></td>
-                            <td>
-                                <button class="btn btn-secondary" style="padding: 8px 15px;">Ver</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+<div id="procesamiento" class="content-section">
+
+    <h2 class="section-title">Registro de Actividades de Procesamiento</h2>
+    <p style="margin-bottom: 20px; color: #666;">
+        Inventario de todas las actividades de tratamiento de datos personales
+    </p>
+
+    <form method="POST" action="{{ route('actividades.store') }}">
+        @csrf
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Código de Actividad *</label>
+                <input type="text" name="codigo">
+            </div>
+
+            <div class="form-group">
+                <label>Nombre de la Actividad *</label>
+                <input type="text" name="nombre">
+            </div>
+
+            <div class="form-group">
+                <label>Responsable *</label>
+                <input type="text" name="responsable">
             </div>
         </div>
+
+        <div class="form-group">
+            <label>Finalidad del Tratamiento *</label>
+            <textarea name="finalidad" rows="3"></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Base Legal *</label>
+                <select name="base_legal">
+                    <option value="">Seleccionar...</option>
+                    <option value="consentimiento">Consentimiento</option>
+                    <option value="contrato">Ejecución de Contrato</option>
+                    <option value="legal">Obligación Legal</option>
+                    <option value="interes">Interés Legítimo</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Categorías de Datos</label>
+                <input type="text" name="categorias_datos">
+            </div>
+
+            <div class="form-group">
+                <label>Plazo de Conservación</label>
+                <input type="text" name="plazo_conservacion">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Medidas de Seguridad</label>
+            <textarea name="medidas_seguridad" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Registrar Actividad
+        </button>
+    </form>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Actividad</th>
+                    <th>Responsable</th>
+                    <th>Base Legal</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            @foreach($procesamientos ?? [] as $act)
+                <tr>
+                    <td>{{ $act->codigo }}</td>
+                    <td>{{ $act->nombre }}</td>
+                    <td>{{ $act->responsable }}</td>
+                    <td>{{ $act->base_legal }}</td>
+                    <td>
+                        <span class="badge badge-success">{{ $act->estado }}</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary"
+                                onclick="verActividad({{ $act->id }})">
+                            Ver
+                        </button>
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+        <!-- PANEL VER ACTIVIDAD -->
+        <div id="panelActividad" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); z-index:9999;">
+            <div style="background:#fff; width:60%; margin:5% auto; padding:20px; border-radius:8px; max-height:80%; overflow:auto;">
+                <h3>Detalle de la Actividad</h3>
+
+                <p><strong>Código:</strong> <span id="v_codigo"></span></p>
+                <p><strong>Nombre:</strong> <span id="v_nombre"></span></p>
+                <p><strong>Responsable:</strong> <span id="v_responsable"></span></p>
+                <p><strong>Finalidad:</strong> <span id="v_finalidad"></span></p>
+                <p><strong>Base Legal:</strong> <span id="v_base_legal"></span></p>
+                <p><strong>Categorías:</strong> <span id="v_categorias"></span></p>
+                <p><strong>Plazo:</strong> <span id="v_plazo"></span></p>
+                <p><strong>Medidas:</strong> <span id="v_medidas"></span></p>
+                <p><strong>Estado:</strong> <span id="v_estado"></span></p>
+
+                <button onclick="cerrarActividad()" class="btn btn-secondary">Cerrar</button>
+            </div>
+        </div>
+
+    </div>
+</div> 
+
         
         <!-- AUDITORÍAS -->
         <div id="auditorias" class="content-section">
@@ -1213,6 +1246,34 @@ Swal.fire({
     <script>
         const csrf = "{{ csrf_token() }}";
     </script>
+
+    <script>
+    const actividades = @json($procesamientos);
+
+    function verActividad(id) {
+        const act = actividades.find(a => a.id === id);
+        if (!act) return;
+
+        document.getElementById('v_codigo').innerText = act.codigo;
+        document.getElementById('v_nombre').innerText = act.nombre;
+        document.getElementById('v_responsable').innerText = act.responsable;
+        document.getElementById('v_finalidad').innerText = act.finalidad;
+        document.getElementById('v_base_legal').innerText = act.base_legal;
+        document.getElementById('v_categorias').innerText = act.categorias_datos;
+        document.getElementById('v_plazo').innerText = act.plazo_conservacion;
+        document.getElementById('v_medidas').innerText = act.medidas_seguridad;
+        document.getElementById('v_estado').innerText = act.estado;
+
+        document.getElementById('panelActividad').style.display = 'block';
+    }
+
+    function cerrarActividad() {
+        document.getElementById('panelActividad').style.display = 'none';
+    }
+</script>
+
+    
+
 
     
     
