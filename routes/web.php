@@ -9,6 +9,7 @@ use App\http\Controllers\ActividadProcesamientoController;
 use App\http\Controllers\SolicitudDsarController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\IncidenteSeguridadController;
+use App\Http\Controllers\MiembroController;
 
 
 // rutas de usuarios y la que define el index ------------
@@ -58,4 +59,10 @@ Route::put('/dsar/{id}', [SolicitudDsarController::class, 'update'])->name('dsar
 Route::delete('/dsar/{id}', [SolicitudDsarController::class, 'destroy'])->name('dsar.destroy');
 Route::put('/dsar/{id}/estado', [SolicitudDsarController::class, 'cambiarEstado'])->name('dsar.estado');
 
+//ruta mienboscouse
 
+// Rutas para miembros
+Route::post('/miembros', [MiembroController::class, 'store'])->name('miembros.store');
+Route::put('/miembros/{id}', [MiembroController::class, 'update'])->name('miembros.update');
+Route::delete('/miembros/{id}', [MiembroController::class, 'destroy'])->name('miembros.destroy');
+Route::put('/miembros/{id}/estado', [MiembroController::class, 'cambiarEstado'])->name('miembros.estado');

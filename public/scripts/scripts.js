@@ -477,30 +477,141 @@ $(document).ready(function () {
         highlight: function (element) { $(element).addClass("is-invalid"); },
         unhighlight: function (element) { $(element).removeClass("is-invalid"); }
     });
+    // VALIDACIÓN MIEMBROS COAC ----------------------------------------------------
+   // ========== FUNCIONES PARA MIEMBROS ==========
 
-    // VALIDACIÓN CONSENTIMIENTOS---------------------------------------------------
-    $("#formConsentimientos").validate({
-        rules: {
-            sujeto_id: { required: true },
-            proposito: { required: true },
-            estado: { required: true },
-            fecha_otorgamiento: { date: true },
-            metodo: {},
-            fecha_expiracion: { date: true }
-        },
-        messages: {
-            sujeto_id: { required: "Seleccione un sujeto de datos" },
-            proposito: { required: "Seleccione el propósito del tratamiento" },
-            estado: { required: "Seleccione el estado del consentimiento" },
-            fecha_otorgamiento: { date: "Ingrese una fecha válida" },
-            fecha_expiracion: { date: "Ingrese una fecha válida" }
-        },
-        errorElement: "div",
-        errorClass: "invalid-feedback",
-        highlight: function (element) { $(element).addClass("is-invalid"); },
-        unhighlight: function (element) { $(element).removeClass("is-invalid"); }
+    // EDITAR MIEMBRO
+    function editarMiembro(id, numero_socio, cedula, nombre, fecha_ingreso, categoria, aportacion) {
+        Swal.fire({
+            icon: 'info',
+            title: 'Editar Miembro',
+            text: 'El formulario ha entrado en modo edición'
+        });
+
+        $('#miembro_id').val(id);
+        $('#miembro_numero_socio').val(numero_socio);
+        $('#miembro_cedula').val(cedula);
+        $('#miembro_nombre_completo').val(nombre);
+        $('#miembro_fecha_ingreso').val(fecha_ingreso);
+        $('#miembro_categoria').val(categoria);
+        $('#miembro_aportacion').val(aportacion);
+
+        $('#form_miembro_method').val('PUT');
+        $('#formMiembros').attr('action', '/miembros/' + id);
+
+        $('button[type="submit"]').text('Actualizar Miembro');
+    }
+
+    // RESET FORMULARIO MIEMBROS
+    function resetFormularioMiembros() {
+        $('#formMiembros').attr('action', '/miembros');
+        $('#form_miembro_method').val('POST');
+        $('#miembro_id').val('');
+
+        $('#miembro_numero_socio').val('');
+        $('#miembro_cedula').val('');
+        $('#miembro_nombre_completo').val('');
+        $('#miembro_fecha_ingreso').val('');
+        $('#miembro_categoria').val('');
+        $('#miembro_aportacion').val('');
+
+        $('button[type="submit"]').text('Registrar Miembro');
+
+        // quitar errores visuales
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+    }
+
+    // ========== VALIDACIÓN MIEMBROS ==========
+    $(document).ready(function () {
+        
+        // VALIDACIÓN MIEMBROS
+        $("#formMiembros").validate({
+            rules: {
+                numero_socio: {
+                    required: true,
+                    minlength: 3
+                },
+                cedula: {
+                    required: true,
+                    minlength: 10,
+                    maxlength: 10
+                },
+                nombre_completo: {
+                    required: true,
+                    minlength: 3
+                },
+                fecha_ingreso: {
+                    required: true,
+                    date: true
+                },
+                categoria: {
+                    required: true
+                },
+                aportacion: {
+                    number: true,
+                    min: 0
+                }
+            },
+            messages: {
+                numero_socio: {
+                    required: "El número de socio es obligatorio",
+                    minlength: "Debe tener al menos 3 dígitos"
+                },
+                cedula: {
+                    required: "La cédula es obligatoria",
+                    minlength: "Debe tener 10 dígitos",
+                    maxlength: "Debe tener 10 dígitos"
+                },
+                nombre_completo: {
+                    required: "El nombre completo es obligatorio",
+                    minlength: "Debe tener al menos 3 caracteres"
+                },
+                fecha_ingreso: {
+                    required: "La fecha de ingreso es obligatoria",
+                    date: "Ingrese una fecha válida"
+                },
+                categoria: {
+                    required: "Seleccione la categoría del miembro"
+                },
+                aportacion: {
+                    number: "Ingrese un valor numérico válido",
+                    min: "El valor no puede ser negativo"
+                }
+            },
+            errorElement: "div",
+            errorClass: "invalid-feedback",
+            highlight: function (element) {
+                $(element).addClass("is-invalid");
+            },
+            unhighlight: function (element) {
+                $(element).removeClass("is-invalid");
+            }
+        });
     });
-});
+    // VALIDACIÓN CONSENTIMIENTOS---------------------------------------------------
+        $("#formConsentimientos").validate({
+            rules: {
+                sujeto_id: { required: true },
+                proposito: { required: true },
+                estado: { required: true },
+                fecha_otorgamiento: { date: true },
+                metodo: {},
+                fecha_expiracion: { date: true }
+            },
+            messages: {
+                sujeto_id: { required: "Seleccione un sujeto de datos" },
+                proposito: { required: "Seleccione el propósito del tratamiento" },
+                estado: { required: "Seleccione el estado del consentimiento" },
+                fecha_otorgamiento: { date: "Ingrese una fecha válida" },
+                fecha_expiracion: { date: "Ingrese una fecha válida" }
+            },
+            errorElement: "div",
+            errorClass: "invalid-feedback",
+            highlight: function (element) { $(element).addClass("is-invalid"); },
+            unhighlight: function (element) { $(element).removeClass("is-invalid"); }
+        });
+    });
 // solicitudes DSAR-----------------------------------------
 window.editarDSAR = function (
     id,

@@ -274,62 +274,65 @@
             </div>
         </div>
         
-        <!-- MIEMBROS COAC -->
+      <!-- MIEMBROS COAC -->
         <div id="miembros" class="content-section">
             <h2 class="section-title">Gestión de Miembros de la Cooperativa</h2>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>1,234</h3>
-                    <p>Total Miembros</p>
+
+            @if(session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
                 </div>
-                <div class="stat-card">
-                    <h3>856</h3>
-                    <p>Activos</p>
-                </div>
-                <div class="stat-card">
-                    <h3>378</h3>
-                    <p>Inactivos</p>
-                </div>
-            </div>
-            
-            <form id="formMiembros">
+            @endif
+
+            <!-- FORMULARIO -->
+            <form id="formMiembros" method="POST" action="{{ route('miembros.store') }}">
+                @csrf
+                <input type="hidden" name="_method" id="form_miembro_method" value="POST">
+                <input type="hidden" name="id" id="miembro_id">
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Número de Socio *</label>
-                        <input type="text" name="numero_socio" >
+                        <input type="text" name="numero_socio" id="miembro_numero_socio" required>
                     </div>
+
                     <div class="form-group">
                         <label>Cédula *</label>
-                        <input type="text" name="cedula" >
+                        <input type="text" name="cedula" id="miembro_cedula" required>
                     </div>
+
                     <div class="form-group">
                         <label>Nombre Completo *</label>
-                        <input type="text" name="nombre" >
+                        <input type="text" name="nombre_completo" id="miembro_nombre_completo" required>
                     </div>
                 </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Fecha de Ingreso *</label>
-                        <input type="date" name="fecha_ingreso" >
+                        <input type="date" name="fecha_ingreso" id="miembro_fecha_ingreso" required>
                     </div>
+
                     <div class="form-group">
                         <label>Categoría *</label>
-                        <select name="categoria" >
+                        <select name="categoria" id="miembro_categoria" required>
                             <option value="">Seleccionar...</option>
                             <option value="activo">Activo</option>
                             <option value="inactivo">Inactivo</option>
                             <option value="honorario">Honorario</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label>Aportación Inicial</label>
-                        <input type="number" name="aportacion" step="0.01">
+                        <input type="number" name="aportacion" id="miembro_aportacion" step="0.01">
                     </div>
                 </div>
+
                 <button type="submit" class="btn btn-primary">Registrar Miembro</button>
             </form>
-            
+
+            <!-- TABLA -->
             <div class="table-container">
                 <table>
                     <thead>
@@ -340,23 +343,67 @@
                             <th>Fecha Ingreso</th>
                             <th>Categoría</th>
                             <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
+
                     <tbody>
-                        <tr>
-                            <td>00123</td>
-                            <td>0103456789</td>
-                            <td>Carlos Ramírez</td>
-                            <td>15/01/2023</td>
-                            <td>Activo</td>
-                            <td><span class="badge badge-success">Vigente</span></td>
-                        </tr>
+                        @foreach($miembros as $miembro)
+                            <tr>
+                                <td>{{ $miembro->numero_socio }}</td>
+                                <td>{{ $miembro->cedula }}</td>
+                                <td>{{ $miembro->nombre_completo }}</td>
+                                <td>{{ \Carbon\Carbon::parse($miembro->fecha_ingreso)->format('d/m/Y') }}</td>
+                                <td>{{ ucfirst($miembro->categoria) }}</td>
+                                <td>
+                                    @if($miembro->estado === 'vigente')
+                                        <span class="badge badge-success">Vigente</span>
+                                    @else
+                                        <span class="badge badge-danger">Inactivo</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 8px 15px;"
+                                        onclick="editarMiembro(
+                                            {{ $miembro->id }},
+                                            '{{ $miembro->numero_socio }}',
+                                            '{{ $miembro->cedula }}',
+                                            '{{ $miembro->nombre_completo }}',
+                                            '{{ $miembro->fecha_ingreso }}',
+                                            '{{ $miembro->categoria }}',
+                                            '{{ $miembro->aportacion }}'
+                                        )">
+                                        Editar
+                                    </button>
+
+                                    <form action="{{ route('miembros.estado', $miembro->id) }}"
+                                        method="POST"
+                                        style="display:inline;">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="btn btn-warning">
+                                            Cambiar estado
+                                        </button>
+                                    </form>
+
+                                    <form action="{{ route('miembros.destroy', $miembro->id) }}"
+                                        method="POST"
+                                        style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button"
+                                            class="btn btn-danger"
+                                            onclick="confirmarEliminacion(this)">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
-        </div>
-        
-        
+        </div>        
         <!-- PRODUCTOS FINANCIEROS ------------------------------------------------------>
         <div id="productos" class="content-section">
             <h2 class="section-title">Productos Financieros</h2>
