@@ -8,6 +8,7 @@ use App\Http\Controllers\ConsentimientoController;
 use App\http\Controllers\ActividadProcesamientoController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\IncidenteSeguridadController;
+use App\Http\Controllers\MiembroController;
 // rutas de usuarios y la que define el index ------------
 Route::get('/', [UsuarioController::class, 'index'])->name('index');
 Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
@@ -45,11 +46,12 @@ Route::get('/actividad-procesamiento/ver/{id}',[ActividadProcesamientoController
 
 Route::get('/auditorias', [AuditoriaController::class, 'index'])->name('auditorias.index');
 Route::post('/auditorias', [AuditoriaController::class, 'store'])->name('auditorias.store');
-Route::get('/verificar-vista', function() {
-    $ruta = resource_path('views/auditorias/show.blade.php');  
-    if (file_exists($ruta)) {
-        return "✅ El archivo EXISTE en: " . $ruta;
-    } else {
-        return "❌ El archivo NO existe. Búscalo en: " . $ruta;
-    }
+
+Route::get('/auditorias/{id}', [AuditoriaController::class, 'show'])->name('auditorias.show');
+
+Route::prefix('miembros')->group(function () {
+    Route::post('/store', [MiembroController::class, 'store'])->name('miembros.store');
+    Route::put('/update/{id}', [MiembroController::class, 'update'])->name('miembros.update');
+    Route::patch('/estado/{id}', [MiembroController::class, 'cambiarEstado'])->name('miembros.estado');
+    Route::delete('/delete/{id}', [MiembroController::class, 'destroy'])->name('miembros.destroy');
 });
