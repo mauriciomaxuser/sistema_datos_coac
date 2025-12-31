@@ -33,35 +33,7 @@ public function show($id)
         if (!is_dir(resource_path('views/auditorias'))) {
             mkdir(resource_path('views/auditorias'), 0755, true);
         }
-        
-        // Contenido HTML de la vista
-        $contenido = '<!DOCTYPE html>
-<html>
-<head>
-    <title>Detalle Auditoría</title>
-    <style>
-        body { font-family: Arial; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: #f9f9f9; padding: 20px; }
-        h1 { color: #333; }
-        .info { background: white; padding: 15px; margin: 10px 0; }
-        .btn { background: #4a6baf; color: white; padding: 10px; text-decoration: none; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Auditoría: {{ $auditoria->codigo }}</h1>
-        
-        <div class="info">
-            <p><strong>Tipo:</strong> {{ $auditoria->tipo }}</p>
-            <p><strong>Auditor:</strong> {{ $auditoria->auditor }}</p>
-            <p><strong>Fecha Inicio:</strong> {{ date("d/m/Y", strtotime($auditoria->fecha_inicio)) }}</p>
-            <p><strong>Estado:</strong> {{ $auditoria->estado }}</p>
-        </div>
-        
-        <a href="{{ route(\'auditorias.index\') }}" class="btn">Volver</a>
-    </div>
-</body>
-</html>';
+
         
         // Crea el archivo
         file_put_contents($viewPath, $contenido);

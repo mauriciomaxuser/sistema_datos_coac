@@ -6,12 +6,8 @@ use App\Http\Controllers\SujetoDatoController;
 use App\Http\Controllers\ProductoFinancieroController;
 use App\Http\Controllers\ConsentimientoController;
 use App\http\Controllers\ActividadProcesamientoController;
-use App\http\Controllers\SolicitudDsarController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\IncidenteSeguridadController;
-use App\Http\Controllers\MiembroController;
-
-
 // rutas de usuarios y la que define el index ------------
 Route::get('/', [UsuarioController::class, 'index'])->name('index');
 Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
@@ -47,31 +43,13 @@ Route::get('/actividades-procesamiento', [ActividadProcesamientoController::clas
 Route::post('/actividades-procesamiento', [ActividadProcesamientoController::class, 'store'])->name('actividades.store');
 Route::get('/actividad-procesamiento/ver/{id}',[ActividadProcesamientoController::class, 'ver'])->name('actividad_procesamiento.ver');
 
-<<<<<<< HEAD
-
-// Asegúrate de que tengas estas rutas
-=======
-// rutas de auditorias ---------------------------------
->>>>>>> 94db0671b03df8ce52e512be2c5b93d745fa6f55
 Route::get('/auditorias', [AuditoriaController::class, 'index'])->name('auditorias.index');
-Route::get('/auditorias/{id}', [AuditoriaController::class, 'show'])->name('auditorias.show');
 Route::post('/auditorias', [AuditoriaController::class, 'store'])->name('auditorias.store');
-<<<<<<< HEAD
-=======
-Route::get('/auditoria/ver/{id}', [AuditoriaController::class, 'ver'])->name('auditoria.ver');
-
-// Rutas solicitudes DSAR ------------------------------
-
-Route::post('/dsar', [SolicitudDsarController::class, 'store'])->name('dsar.store');
-Route::put('/dsar/{id}', [SolicitudDsarController::class, 'update'])->name('dsar.update');
-Route::delete('/dsar/{id}', [SolicitudDsarController::class, 'destroy'])->name('dsar.destroy');
-Route::put('/dsar/{id}/estado', [SolicitudDsarController::class, 'cambiarEstado'])->name('dsar.estado');
-
-//ruta mienboscouse
-
-// Rutas para miembros
-Route::post('/miembros', [MiembroController::class, 'store'])->name('miembros.store');
-Route::put('/miembros/{id}', [MiembroController::class, 'update'])->name('miembros.update');
-Route::delete('/miembros/{id}', [MiembroController::class, 'destroy'])->name('miembros.destroy');
-Route::put('/miembros/{id}/estado', [MiembroController::class, 'cambiarEstado'])->name('miembros.estado');
->>>>>>> 94db0671b03df8ce52e512be2c5b93d745fa6f55
+Route::get('/verificar-vista', function() {
+    $ruta = resource_path('views/auditorias/show.blade.php');  
+    if (file_exists($ruta)) {
+        return "✅ El archivo EXISTE en: " . $ruta;
+    } else {
+        return "❌ El archivo NO existe. Búscalo en: " . $ruta;
+    }
+});
