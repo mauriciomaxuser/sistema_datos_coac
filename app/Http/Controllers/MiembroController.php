@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class MiembroController extends Controller
 {
+    // Mostrar la vista principal con todos los miembros
+    public function index()
+    {
+        $miembros = MiembroCoac::all();
+        return view('tu_vista', compact('miembros')); // Ajusta 'tu_vista' por el nombre de tu vista
+    }
+
     public function store(Request $request)
     {
         $request->validate([

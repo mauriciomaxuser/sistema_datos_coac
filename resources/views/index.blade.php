@@ -273,8 +273,7 @@
                 </table>
             </div>
         </div>
-        
-      <!-- MIEMBROS COAC -->
+        <!-- MIEMBROS COAC -->
         <div id="miembros" class="content-section">
             <h2 class="section-title">Gestión de Miembros de la Cooperativa</h2>
 
@@ -325,11 +324,12 @@
 
                     <div class="form-group">
                         <label>Aportación Inicial</label>
-                        <input type="number" name="aportacion" id="miembro_aportacion" step="0.01">
+                        <input type="number" name="aportacion" id="miembro_aportacion" step="0.01" value="0">
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Registrar Miembro</button>
+                <button type="submit" class="btn btn-primary" id="btnMiembroSubmit">Registrar Miembro</button>
+                <button type="button" class="btn btn-secondary" onclick="resetFormularioMiembros()">Cancelar</button>
             </form>
 
             <!-- TABLA -->
@@ -363,16 +363,15 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <button class="btn btn-secondary" style="padding: 8px 15px;"
-                                        onclick="editarMiembro(
-                                            {{ $miembro->id }},
-                                            '{{ $miembro->numero_socio }}',
-                                            '{{ $miembro->cedula }}',
-                                            '{{ $miembro->nombre_completo }}',
-                                            '{{ $miembro->fecha_ingreso }}',
-                                            '{{ $miembro->categoria }}',
-                                            '{{ $miembro->aportacion }}'
-                                        )">
+                                    <!-- BOTÓN EDITAR CORREGIDO -->
+                                    <button class="btn btn-secondary btn-editar-miembro" 
+                                        data-id="{{ $miembro->id }}"
+                                        data-numero="{{ $miembro->numero_socio }}"
+                                        data-cedula="{{ $miembro->cedula }}"
+                                        data-nombre="{{ $miembro->nombre_completo }}"
+                                        data-fecha="{{ $miembro->fecha_ingreso }}"
+                                        data-categoria="{{ $miembro->categoria }}"
+                                        data-aportacion="{{ $miembro->aportacion ?? 0 }}">
                                         Editar
                                     </button>
 
@@ -403,8 +402,8 @@
                     </tbody>
                 </table>
             </div>
-        </div>        
-        <!-- PRODUCTOS FINANCIEROS ------------------------------------------------------>
+        </div>
+       <!-- PRODUCTOS FINANCIEROS ------------------------------------------------------>
         <div id="productos" class="content-section">
             <h2 class="section-title">Productos Financieros</h2>
             

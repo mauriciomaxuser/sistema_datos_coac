@@ -9,6 +9,7 @@ use App\http\Controllers\ActividadProcesamientoController;
 use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\IncidenteSeguridadController;
 use App\Http\Controllers\MiembroController;
+
 // rutas de usuarios y la que define el index ------------
 Route::get('/', [UsuarioController::class, 'index'])->name('index');
 Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
@@ -58,13 +59,12 @@ Route::put('/dsar/{id}/estado', [SolicitudDsarController::class, 'cambiarEstado'
 //ruta mienboscouse
 
 // Rutas para miembros
+// CRUD miembros
+
+Route::get('/miembros', [MiembroController::class, 'index'])->name('miembros.index');
+
+// Rutas CRUD para miembros
 Route::post('/miembros', [MiembroController::class, 'store'])->name('miembros.store');
 Route::put('/miembros/{id}', [MiembroController::class, 'update'])->name('miembros.update');
 Route::delete('/miembros/{id}', [MiembroController::class, 'destroy'])->name('miembros.destroy');
 Route::put('/miembros/{id}/estado', [MiembroController::class, 'cambiarEstado'])->name('miembros.estado');
-Route::prefix('miembros')->group(function () {
-    Route::post('/store', [MiembroController::class, 'store'])->name('miembros.store');
-    Route::put('/update/{id}', [MiembroController::class, 'update'])->name('miembros.update');
-    Route::patch('/estado/{id}', [MiembroController::class, 'cambiarEstado'])->name('miembros.estado');
-    Route::delete('/delete/{id}', [MiembroController::class, 'destroy'])->name('miembros.destroy');
-});

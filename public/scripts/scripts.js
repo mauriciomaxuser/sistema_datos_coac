@@ -1,243 +1,48 @@
-        function showSection(sectionId) {
-            // Ocultar todas las secciones
-            const sections = document.querySelectorAll('.content-section');
-            sections.forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Mostrar la sección seleccionada
-            document.getElementById(sectionId).classList.add('active');
-            
-            // Actualizar botones activos
-            const buttons = document.querySelectorAll('.nav-tabs button');
-            buttons.forEach(button => {
-                button.classList.remove('active');
-            });
-            event.target.classList.add('active');
-        }
-        //SUJETOS DE DATOS Y USUARIOS----------------------------------------------------------------------
-        //-------------------------------------------------------------------------------------------------
-        // reset formulario usuarios ------------------------
-        function resetFormularioUsuarios() {
-            $('#formUsuarios').attr('action', '/usuarios');
-            $('#form_method').val('POST');
-            $('#usuario_id').val('');
+// ========== FUNCIONES GLOBALES ==========
 
-            $('#nombre_completo').val('');
-            $('input[name="email"]').val('');
-            $('#rol').val('');
-
-            $('button[type="submit"]').text('Agregar Usuario');
-        }    
-        //PARA EDITAR USUARIO ----------------------------------------------
-        function editarUsuario(id, nombre, email, rol) {
-            Swal.fire({
-                icon: 'info',
-                title: 'Editar usuario',
-                text: 'El formulario ha entrado en modo edición'
-            });
-
-            $('#usuario_id').val(id);
-            $('#nombre_completo').val(nombre);
-            $('input[name="email"]').val(email);
-            $('#rol').val(rol);
-
-            $('#form_method').val('PUT');
-            $('#formUsuarios').attr('action', '/usuarios/' + id);
-
-            $('button[type="submit"]').text('Actualizar Usuario');
-        }
-        //  EDITAR SUJETOS --------------------
-        function editarSujeto(id, cedula, nombre, email, telefono, direccion, tipo) {
-            Swal.fire({
-                icon: 'info',
-                title: 'Editar Sujeto de datos',
-                text: 'El formulario ha entrado en modo edición'
-            });
-            const form = document.getElementById('formSujetos');
-
-            form.querySelector('input[name="cedula"]').value = cedula;
-            form.querySelector('input[name="nombre"]').value = nombre;
-            form.querySelector('input[name="email"]').value = email;
-            form.querySelector('input[name="telefono"]').value = telefono;
-            form.querySelector('input[name="direccion"]').value = direccion;
-            form.querySelector('select[name="tipo"]').value = tipo;
-
-            document.getElementById('sujeto_id').value = id;
-
-            // Cambiar el método a PUT
-            document.getElementById('form_sujeto_method').value = 'PUT';
-
-            form.action = `/sujetos/${id}`;
-            form.querySelector('button[type="submit"]').innerText = 'Actualizar Sujeto';
-        }
-
-        // mensaje unico de eliminar para sujetos y usuarios------------------------
-            function confirmarEliminacion(boton) {
-        event.preventDefault();
-
-        const form = boton.closest('form');
-
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: 'Esta acción no se puede deshacer',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit();
-            }
-        });
-    }
-    // funcion para resetear formulario de usuarios---------
-    function resetFormularioUsuarios() {
-    const form = $('#formUsuarios');
-
-    form.attr('action', '/usuarios');
-    $('#form_method').val('POST');
-    $('#usuario_id').val('');
-
-    $('#nombre_completo').val('');
-    $('input[name="email"]').val('');
-    $('#rol').val('');
-
-    form.find('button[type="submit"]').text('Agregar Usuario');
-
-    // quitar errores visuales
-    $('.is-invalid').removeClass('is-invalid');
-    $('.invalid-feedback').remove();
-}
-
-    $(document).ready(function () {
-
-    //-----VALIDACIONES
-    $.validator.addMethod("soloLetras", function (value, element) {
-        return this.optional(element) || /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value);
-    }, "Solo se permiten letras");
-
-    $.validator.addMethod("soloNumeros", function (value, element) {
-        return this.optional(element) || /^[0-9]+$/.test(value);
-    }, "Solo se permiten números");
-
-    // validaciones usuarioss--------------------------------
-    $("#formUsuarios").validate({
-        rules: {
-            nombre_completo: {
-                required: true,
-                minlength: 3,
-                soloLetras: true
-            },
-            email: {
-                required: true,
-                email: true
-            },
-            rol: {
-                required: true
-            }
-        },
-        messages: {
-            nombre_completo: {
-                required: "El nombre es obligatorio",
-                minlength: "Debe tener al menos 3 caracteres",
-                soloLetras: "Solo se permiten letras"
-            },
-            email: {
-                required: "El correo es obligatorio",
-                email: "Correo no válido"
-            },
-            rol: {
-                required: "El rol es obligatorio"
-            }
-        },
-        errorElement: "div",
-        errorClass: "invalid-feedback",
-        highlight: function (element) {
-            $(element).addClass("is-invalid");
-        },
-        unhighlight: function (element) {
-            $(element).removeClass("is-invalid");
-        }
-    });
-
-    // validaciones sujetoss ---------------------------------------
-    $("#formSujetos").validate({
-        rules: {
-            cedula: {
-                required: true,
-                minlength: 10,
-                maxlength: 10,
-                soloNumeros: true
-            },
-            nombre: {
-                required: true,
-                minlength: 3,
-                soloLetras: true
-            },
-            email: {
-                email: true
-            },
-            telefono: {
-                soloNumeros: true,
-                minlength: 7,
-                maxlength: 10
-            },
-            tipo: {
-                required: true
-            }
-        },
-        messages: {
-            cedula: {
-                required: "La cédula es obligatoria",
-                minlength: "Debe tener 10 dígitos",
-                maxlength: "Debe tener 10 dígitos",
-                soloNumeros: "Solo se permiten números"
-            },
-            nombre: {
-                required: "El nombre es obligatorio",
-                minlength: "Debe tener al menos 3 caracteres",
-                soloLetras: "Solo se permiten letras"
-            },
-            email: {
-                email: "Correo no válido"
-            },
-            telefono: {
-                soloNumeros: "Solo se permiten números",
-                minlength: "Mínimo 7 dígitos",
-                maxlength: "Máximo 10 dígitos"
-            },
-            tipo: {
-                required: "Seleccione el tipo de sujeto"
-            }
-        },
-        errorElement: "div",
-        errorClass: "invalid-feedback",
-        highlight: function (element) {
-            $(element).addClass("is-invalid");
-        },
-        unhighlight: function (element) {
-            $(element).removeClass("is-invalid");
-        }
-    });
-});
-    // productos finacieros----------------------------------------------------------------
-    //-------------------------------------------------------------------------------------
-    // ========== MOSTRAR SECCIONES ==========
+// MOSTRAR SECCIÓN (ÚNICA DEFINICIÓN)
 function showSection(sectionId) {
+    // Ocultar todas las secciones
     const sections = document.querySelectorAll('.content-section');
-    sections.forEach(section => section.classList.remove('active'));
+    sections.forEach(section => {
+        section.classList.remove('active');
+    });
     
+    // Mostrar la sección seleccionada
     document.getElementById(sectionId).classList.add('active');
     
+    // Actualizar botones activos
     const buttons = document.querySelectorAll('.nav-tabs button');
-    buttons.forEach(button => button.classList.remove('active'));
+    buttons.forEach(button => {
+        button.classList.remove('active');
+    });
     event.target.classList.add('active');
 }
 
-// ========== RESET FORMULARIOS ==========
+// CONFIRMAR ELIMINACIÓN
+function confirmarEliminacion(boton) {
+    event.preventDefault();
+    const form = boton.closest('form');
+
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción no se puede deshacer',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+
+// ========== FUNCIONES PARA USUARIOS ==========
+
+// RESET FORMULARIO USUARIOS
 function resetFormularioUsuarios() {
     const form = $('#formUsuarios');
     form.attr('action', '/usuarios');
@@ -251,22 +56,7 @@ function resetFormularioUsuarios() {
     $('.invalid-feedback').remove();
 }
 
-function resetFormularioProductos() {
-    const form = $('#formProductos');
-    form.attr('action', '/productos');
-    $('#form_producto_method').val('POST');
-    $('#producto_id').val('');
-    $('#producto_codigo').val('');
-    $('#producto_nombre').val('');
-    $('#producto_tipo').val('');
-    $('#producto_descripcion').val('');
-    $('#producto_datos').val('');
-    form.find('button[type="submit"]').text('Guardar Producto');
-    $('.is-invalid').removeClass('is-invalid');
-    $('.invalid-feedback').remove();
-}
-
-// ========== EDITAR USUARIO ==========
+// EDITAR USUARIO
 function editarUsuario(id, nombre, email, rol) {
     Swal.fire({
         icon: 'info',
@@ -284,7 +74,9 @@ function editarUsuario(id, nombre, email, rol) {
     $('#formUsuarios button[type="submit"]').text('Actualizar Usuario');
 }
 
-// ========== EDITAR SUJETO ==========
+// ========== FUNCIONES PARA SUJETOS ==========
+
+// EDITAR SUJETO
 function editarSujeto(id, cedula, nombre, email, telefono, direccion, tipo) {
     Swal.fire({
         icon: 'info',
@@ -306,7 +98,25 @@ function editarSujeto(id, cedula, nombre, email, telefono, direccion, tipo) {
     form.querySelector('button[type="submit"]').innerText = 'Actualizar Sujeto';
 }
 
-// ========== EDITAR PRODUCTO ==========
+// ========== FUNCIONES PARA PRODUCTOS FINANCIEROS ==========
+
+// RESET FORMULARIO PRODUCTOS
+function resetFormularioProductos() {
+    const form = $('#formProductos');
+    form.attr('action', '/productos');
+    $('#form_producto_method').val('POST');
+    $('#producto_id').val('');
+    $('#producto_codigo').val('');
+    $('#producto_nombre').val('');
+    $('#producto_tipo').val('');
+    $('#producto_descripcion').val('');
+    $('#producto_datos').val('');
+    form.find('button[type="submit"]').text('Guardar Producto');
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').remove();
+}
+
+// EDITAR PRODUCTO
 function editarProducto(id, codigo, nombre, tipo, descripcion, datos) {
     Swal.fire({
         icon: 'info',
@@ -326,7 +136,9 @@ function editarProducto(id, codigo, nombre, tipo, descripcion, datos) {
     $('#formProductos button[type="submit"]').text('Actualizar Producto');
 }
 
-// ========== RESETEAR FORMULARIO CONSENTIMIENTOS ==========
+// ========== FUNCIONES PARA CONSENTIMIENTOS ==========
+
+// RESET FORMULARIO CONSENTIMIENTOS
 function resetFormularioConsentimientos() {
     const form = $('#formConsentimientos');
     form.attr('action', '/consentimientos');
@@ -343,7 +155,7 @@ function resetFormularioConsentimientos() {
     $('.invalid-feedback').remove();
 }
 
-// ========== EDITAR CONSENTIMIENTO ==========
+// EDITAR CONSENTIMIENTO
 function editarConsentimiento(id, sujeto_id, proposito, estado, fecha_otorgamiento, metodo, fecha_expiracion) {
     Swal.fire({
         icon: 'info',
@@ -364,29 +176,152 @@ function editarConsentimiento(id, sujeto_id, proposito, estado, fecha_otorgamien
     $('#formConsentimientos button[type="submit"]').text('Actualizar Consentimiento');
 }
 
-// ========== CONFIRMAR ELIMINACIÓN ==========
-function confirmarEliminacion(boton) {
-    event.preventDefault();
-    const form = boton.closest('form');
+// ========== FUNCIONES PARA MIEMBROS (¡CORREGIDAS!) ==========
 
+// EDITAR MIEMBRO - VERSIÓN SIMPLIFICADA Y FUNCIONAL
+function editarMiembro(id, numero_socio, cedula, nombre, fecha_ingreso, categoria, aportacion) {
+    console.log('Editando miembro:', {id, numero_socio, cedula, nombre, fecha_ingreso, categoria, aportacion});
+    
+    // Mostrar notificación
     Swal.fire({
-        title: '¿Estás seguro?',
+        icon: 'info',
+        title: 'Editando Miembro',
+        text: `ID: ${id} - ${nombre}`,
+        timer: 2000,
+        showConfirmButton: false
+    });
+    
+    // 1. Llenar formulario con datos
+    $('#miembro_id').val(id);
+    $('#miembro_numero_socio').val(numero_socio);
+    $('#miembro_cedula').val(cedula);
+    $('#miembro_nombre_completo').val(nombre);
+    $('#miembro_fecha_ingreso').val(fecha_ingreso);
+    $('#miembro_categoria').val(categoria);
+    $('#miembro_aportacion').val(parseFloat(aportacion) || 0);
+    
+    // 2. Cambiar método y URL
+    $('#form_miembro_method').val('PUT');
+    $('#formMiembros').attr('action', '/miembros/' + id);
+    
+    // 3. Cambiar texto del botón
+    $('#btnMiembroSubmit').text('Actualizar Miembro');
+    
+    // 4. Mostrar sección de miembros
+    showSection('miembros');
+    
+    console.log('Formulario listo para editar:', {
+        id: $('#miembro_id').val(),
+        action: $('#formMiembros').attr('action'),
+        method: $('#form_miembro_method').val()
+    });
+}
+
+// RESET FORMULARIO MIEMBROS
+function resetFormularioMiembros() {
+    $('#formMiembros')[0].reset();
+    $('#form_miembro_method').val('POST');
+    $('#miembro_id').val('');
+    $('#formMiembros').attr('action', '/miembros');
+    $('#btnMiembroSubmit').text('Registrar Miembro');
+    $('#miembro_aportacion').val(0);
+    
+    Swal.fire({
+        icon: 'info',
+        title: 'Formulario reiniciado',
+        text: 'Listo para registrar nuevo miembro',
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+// ========== FUNCIONES PARA DSAR ==========
+
+// EDITAR DSAR
+window.editarDSAR = function (id, numero, cedula, tipo, descripcion, fechaSolicitud, fechaLimite, estado) {
+    Swal.fire({
+        icon: 'info',
+        title: 'Editar solicitud',
+        text: 'El formulario ha entrado en modo edición',
+        timer: 2000,
+        showConfirmButton: false
+    });
+
+    const form = document.getElementById('formDSAR');
+    form.action = `/dsar/${id}`;
+    document.getElementById('form_dsar_method').value = 'PUT';
+    document.getElementById('dsar_numero').value = numero;
+    document.getElementById('dsar_cedula').value = cedula;
+    document.getElementById('dsar_tipo').value = tipo;
+    document.getElementById('dsar_descripcion').value = descripcion;
+    document.getElementById('dsar_fecha_solicitud').value = fechaSolicitud;
+    document.getElementById('dsar_fecha_limite').value = fechaLimite ?? '';
+    document.getElementById('dsar_estado').value = estado;
+    document.getElementById('btnDsarGuardar').innerText = 'Actualizar Solicitud';
+};
+
+// RESET FORMULARIO DSAR
+window.resetFormularioDSAR = function () {
+    const form = document.getElementById('formDSAR');
+    form.reset();
+    form.action = "/dsar";
+    document.getElementById('form_dsar_method').value = 'POST';
+    document.getElementById('btnDsarGuardar').innerText = 'Registrar Solicitud';
+};
+
+// CONFIRMAR ELIMINAR DSAR
+function confirmarEliminarDSAR(btn) {
+    Swal.fire({
+        title: '¿Eliminar solicitud?',
         text: 'Esta acción no se puede deshacer',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar',
         confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6'
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            form.submit();
+            btn.closest('form').submit();
         }
     });
 }
 
 // ========== VALIDACIONES JQUERY ==========
+
 $(document).ready(function () {
+    console.log('Script cargado correctamente');
+    
+    // Event listener para botones editar miembros
+    $(document).on('click', '.btn-editar-miembro', function() {
+        const btn = $(this);
+        console.log('Botón editar clickeado:', btn.data());
+        
+        editarMiembro(
+            btn.data('id'),
+            btn.data('numero'),
+            btn.data('cedula'),
+            btn.data('nombre'),
+            btn.data('fecha'),
+            btn.data('categoria'),
+            btn.data('aportacion')
+        );
+    });
+    
+    // Event listener para botones editar DSAR
+    $(document).on('click', '.btn-editar-dsar', function() {
+        const b = $(this);
+        editarDSAR(
+            b.data('id'),
+            b.data('numero'),
+            b.data('cedula'),
+            b.data('tipo'),
+            b.data('descripcion'),
+            b.data('fecha'),
+            b.data('limite'),
+            b.data('estado')
+        );
+    });
 
     // Métodos personalizados
     $.validator.addMethod("soloLetras", function (value, element) {
@@ -454,7 +389,7 @@ $(document).ready(function () {
         unhighlight: function (element) { $(element).removeClass("is-invalid"); }
     });
 
-    // VALIDACIÓN PRODUCTOS FINANCIEROS---------------------------------------------
+    // VALIDACIÓN PRODUCTOS FINANCIEROS
     $("#formProductos").validate({
         rules: {
             codigo: { required: true, minlength: 2 },
@@ -477,205 +412,114 @@ $(document).ready(function () {
         highlight: function (element) { $(element).addClass("is-invalid"); },
         unhighlight: function (element) { $(element).removeClass("is-invalid"); }
     });
-    // VALIDACIÓN MIEMBROS COAC ----------------------------------------------------
-   // ========== FUNCIONES PARA MIEMBROS ==========
 
-    // EDITAR MIEMBRO
-    function editarMiembro(id, numero_socio, cedula, nombre, fecha_ingreso, categoria, aportacion) {
-        Swal.fire({
-            icon: 'info',
-            title: 'Editar Miembro',
-            text: 'El formulario ha entrado en modo edición'
-        });
-
-        $('#miembro_id').val(id);
-        $('#miembro_numero_socio').val(numero_socio);
-        $('#miembro_cedula').val(cedula);
-        $('#miembro_nombre_completo').val(nombre);
-        $('#miembro_fecha_ingreso').val(fecha_ingreso);
-        $('#miembro_categoria').val(categoria);
-        $('#miembro_aportacion').val(aportacion);
-
-        $('#form_miembro_method').val('PUT');
-        $('#formMiembros').attr('action', '/miembros/' + id);
-
-        $('button[type="submit"]').text('Actualizar Miembro');
-    }
-
-    // RESET FORMULARIO MIEMBROS
-    function resetFormularioMiembros() {
-        $('#formMiembros').attr('action', '/miembros');
-        $('#form_miembro_method').val('POST');
-        $('#miembro_id').val('');
-
-        $('#miembro_numero_socio').val('');
-        $('#miembro_cedula').val('');
-        $('#miembro_nombre_completo').val('');
-        $('#miembro_fecha_ingreso').val('');
-        $('#miembro_categoria').val('');
-        $('#miembro_aportacion').val('');
-
-        $('button[type="submit"]').text('Registrar Miembro');
-
-        // quitar errores visuales
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').remove();
-    }
-
-    // ========== VALIDACIÓN MIEMBROS ==========
-    $(document).ready(function () {
-        
-        // VALIDACIÓN MIEMBROS
-        $("#formMiembros").validate({
-            rules: {
-                numero_socio: {
-                    required: true,
-                    minlength: 3
-                },
-                cedula: {
-                    required: true,
-                    minlength: 10,
-                    maxlength: 10
-                },
-                nombre_completo: {
-                    required: true,
-                    minlength: 3
-                },
-                fecha_ingreso: {
-                    required: true,
-                    date: true
-                },
-                categoria: {
-                    required: true
-                },
-                aportacion: {
-                    number: true,
-                    min: 0
-                }
+    // VALIDACIÓN MIEMBROS
+    $("#formMiembros").validate({
+        rules: {
+            numero_socio: { 
+                required: true, 
+                minlength: 3,
+                digits: true
             },
-            messages: {
-                numero_socio: {
-                    required: "El número de socio es obligatorio",
-                    minlength: "Debe tener al menos 3 dígitos"
-                },
-                cedula: {
-                    required: "La cédula es obligatoria",
-                    minlength: "Debe tener 10 dígitos",
-                    maxlength: "Debe tener 10 dígitos"
-                },
-                nombre_completo: {
-                    required: "El nombre completo es obligatorio",
-                    minlength: "Debe tener al menos 3 caracteres"
-                },
-                fecha_ingreso: {
-                    required: "La fecha de ingreso es obligatoria",
-                    date: "Ingrese una fecha válida"
-                },
-                categoria: {
-                    required: "Seleccione la categoría del miembro"
-                },
-                aportacion: {
-                    number: "Ingrese un valor numérico válido",
-                    min: "El valor no puede ser negativo"
-                }
+            cedula: { 
+                required: true, 
+                minlength: 10, 
+                maxlength: 10,
+                digits: true
             },
-            errorElement: "div",
-            errorClass: "invalid-feedback",
-            highlight: function (element) {
-                $(element).addClass("is-invalid");
+            nombre_completo: { 
+                required: true, 
+                minlength: 3
             },
-            unhighlight: function (element) {
-                $(element).removeClass("is-invalid");
+            fecha_ingreso: { 
+                required: true, 
+                date: true 
+            },
+            categoria: { 
+                required: true 
+            },
+            aportacion: { 
+                number: true, 
+                min: 0 
             }
-        });
-    });
-    // VALIDACIÓN CONSENTIMIENTOS---------------------------------------------------
-        $("#formConsentimientos").validate({
-            rules: {
-                sujeto_id: { required: true },
-                proposito: { required: true },
-                estado: { required: true },
-                fecha_otorgamiento: { date: true },
-                metodo: {},
-                fecha_expiracion: { date: true }
+        },
+        messages: {
+            numero_socio: {
+                required: "Número de socio requerido",
+                minlength: "Mínimo 3 dígitos",
+                digits: "Solo números permitidos"
             },
-            messages: {
-                sujeto_id: { required: "Seleccione un sujeto de datos" },
-                proposito: { required: "Seleccione el propósito del tratamiento" },
-                estado: { required: "Seleccione el estado del consentimiento" },
-                fecha_otorgamiento: { date: "Ingrese una fecha válida" },
-                fecha_expiracion: { date: "Ingrese una fecha válida" }
+            cedula: {
+                required: "Cédula requerida",
+                minlength: "Debe tener 10 dígitos",
+                maxlength: "Debe tener 10 dígitos",
+                digits: "Solo números permitidos"
             },
-            errorElement: "div",
-            errorClass: "invalid-feedback",
-            highlight: function (element) { $(element).addClass("is-invalid"); },
-            unhighlight: function (element) { $(element).removeClass("is-invalid"); }
-        });
+            nombre_completo: {
+                required: "Nombre completo requerido",
+                minlength: "Mínimo 3 caracteres"
+            },
+            fecha_ingreso: "Fecha de ingreso requerida",
+            categoria: "Seleccione una categoría",
+            aportacion: {
+                number: "Ingrese un número válido",
+                min: "No puede ser negativo"
+            }
+        },
+        errorElement: "div",
+        errorClass: "invalid-feedback",
+        highlight: function(element) {
+            $(element).addClass("is-invalid");
+        },
+        unhighlight: function(element) {
+            $(element).removeClass("is-invalid");
+        },
+        submitHandler: function(form) {
+            const isEdit = $('#form_miembro_method').val() === 'PUT';
+            const title = isEdit ? '¿Actualizar miembro?' : '¿Registrar nuevo miembro?';
+            
+            Swal.fire({
+                title: title,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+            
+            return false;
+        }
     });
-// solicitudes DSAR-----------------------------------------
-window.editarDSAR = function (
-    id,
-    numero,
-    cedula,
-    tipo,
-    descripcion,
-    fechaSolicitud,
-    fechaLimite,
-    estado
-) {
-    Swal.fire({
-        icon: 'info',
-        title: 'Editar solicitud',
-        text: 'El formulario ha entrado en modo edición',
-        timer: 2000,
-        showConfirmButton: false
+
+    // VALIDACIÓN CONSENTIMIENTOS
+    $("#formConsentimientos").validate({
+        rules: {
+            sujeto_id: { required: true },
+            proposito: { required: true },
+            estado: { required: true },
+            fecha_otorgamiento: { date: true },
+            metodo: {},
+            fecha_expiracion: { date: true }
+        },
+        messages: {
+            sujeto_id: { required: "Seleccione un sujeto de datos" },
+            proposito: { required: "Seleccione el propósito del tratamiento" },
+            estado: { required: "Seleccione el estado del consentimiento" },
+            fecha_otorgamiento: { date: "Ingrese una fecha válida" },
+            fecha_expiracion: { date: "Ingrese una fecha válida" }
+        },
+        errorElement: "div",
+        errorClass: "invalid-feedback",
+        highlight: function (element) { $(element).addClass("is-invalid"); },
+        unhighlight: function (element) { $(element).removeClass("is-invalid"); }
     });
 
-    const form = document.getElementById('formDSAR');
-
-    form.action = `/dsar/${id}`;
-    document.getElementById('form_dsar_method').value = 'PUT';
-
-    document.getElementById('dsar_numero').value = numero;
-    document.getElementById('dsar_cedula').value = cedula;
-    document.getElementById('dsar_tipo').value = tipo;
-    document.getElementById('dsar_descripcion').value = descripcion;
-    document.getElementById('dsar_fecha_solicitud').value = fechaSolicitud;
-    document.getElementById('dsar_fecha_limite').value = fechaLimite ?? '';
-    document.getElementById('dsar_estado').value = estado;
-
-    document.getElementById('btnDsarGuardar').innerText = 'Actualizar Solicitud';
-};
-
-
-
-window.resetFormularioDSAR = function () {
-    const form = document.getElementById('formDSAR');
-    form.reset();
-
-    form.action = "/dsar";
-    document.getElementById('form_dsar_method').value = 'POST';
-    document.getElementById('btnDsarGuardar').innerText = 'Registrar Solicitud';
-};
-
-
-function confirmarEliminacion(button) {
-    if (confirm('¿Está seguro de eliminar esta solicitud DSAR?')) {
-        button.closest('form').submit();
-    }
-}
-// ===== MÉTODOS PERSONALIZADOS =====
-$.validator.addMethod("soloNumeros", function (value, element) {
-    return this.optional(element) || /^[0-9]+$/.test(value);
-}, "Solo se permiten números");
-
-$.validator.addMethod("soloLetras", function (value, element) {
-    return this.optional(element) || /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value);
-}, "Solo se permiten letras");
-
-// ===== VALIDACIÓN SOLICITUD DSAR =====
-$(document).ready(function () {
-
+    // VALIDACIÓN DSAR
     $("#formDSAR").validate({
         rules: {
             numero_solicitud: {
@@ -685,8 +529,6 @@ $(document).ready(function () {
             },
             cedula: {
                 required: true
-                
-                
             },
             tipo: {
                 required: true
@@ -738,65 +580,18 @@ $(document).ready(function () {
             $(element).removeClass("is-invalid");
         }
     });
+});
 
-});
-// mensaje de alerta
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.__swalData) {
-        Swal.fire({
-            icon: window.__swalData.icon,
-            title: window.__swalData.title,
-            text: window.__swalData.text,
-            confirmButtonText: 'OK'
-        });
-    }
-});
-function confirmarEliminarDSAR(btn) {
-    Swal.fire({
-        title: '¿Eliminar solicitud?',
-        text: 'Esta acción no se puede deshacer',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            btn.closest('form').submit();
-        }
-    });
+// ========== DEPURACIÓN ==========
+
+// Función para probar si todo funciona
+function testFuncionalidades() {
+    console.log('=== TEST FUNCIONALIDADES ===');
+    console.log('showSection:', typeof showSection);
+    console.log('editarMiembro:', typeof editarMiembro);
+    console.log('resetFormularioMiembros:', typeof resetFormularioMiembros);
+    console.log('=== FIN TEST ===');
 }
-document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('btn-editar-dsar')) {
 
-        const b = e.target;
-
-        editarDSAR(
-            b.dataset.id,
-            b.dataset.numero,
-            b.dataset.cedula,
-            b.dataset.tipo,
-            b.dataset.descripcion,
-            b.dataset.fecha,
-            b.dataset.limite,
-            b.dataset.estado
-        );
-    }
-});
-
-
-
-
-    
-
-
-
-        
-        
-        
-
-
-
-
-
+// Ejecutar test cuando cargue la página
+setTimeout(testFuncionalidades, 1000);
