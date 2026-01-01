@@ -2,63 +2,80 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SolicitudDsar;
+use App\Models\SujetoDato;
 use Illuminate\Http\Request;
 
 class SolicitudDsarController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $solicitudes = SolicitudDsar::with('sujeto')->orderBy('id','desc')->get();
+
+        return view('index', compact('solicitudes'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $sujeto = SujetoDato::where('cedula', $request->cedula)->first();
+
+        if (!$sujeto) {
+            return back()->withErrors(['cedula' => 'La cédula no existe'])->withInput();
+        }
+
+        SolicitudDsar::create([
+            'numero_solicitud' => $request->numero_solicitud,
+            'sujeto_id'        => $sujeto->id,
+            'tipo'             => $request->tipo,
+            'descripcion'      => $request->descripcion,
+            'fecha_solicitud'  => $request->fecha_solicitud,
+            'fecha_limite'     => $request->fecha_limite,
+            'estado'           => $request->estado,
+        ]);
+
+        return redirect()->route('index')->with('swal', [
+        'icon' => 'success',
+        'title' => 'Solicitud DSAR',
+        'text' => 'La solicitud se guardó correctamente'
+    ]);
+
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $dsar = SolicitudDsar::findOrFail($id);
+
+        $sujeto = SujetoDato::where('cedula', $request->cedula)->first();
+        if (!$sujeto) {
+            return back()->withErrors(['cedula' => 'La cédula no existe']);
+        }
+
+        $dsar->update([
+            'numero_solicitud' => $request->numero_solicitud,
+            'sujeto_id'        => $sujeto->id,
+            'tipo'             => $request->tipo,
+            'descripcion'      => $request->descripcion,
+            'fecha_solicitud'  => $request->fecha_solicitud,
+            'fecha_limite'     => $request->fecha_limite,
+            'estado'           => $request->estado,
+        ]);
+
+        return redirect()->back();
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy($id)
     {
-        //
+        SolicitudDsar::findOrFail($id)->delete();
+        return redirect()->back();
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function cambiarEstado(Request $request, $id)
     {
-        //
-    }
+        $dsar = SolicitudDsar::findOrFail($id);
+        $dsar->estado = $request->estado;
+        $dsar->save();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->back();
     }
 }
+

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Usuario; 
 use App\Models\SujetoDato;
 use App\Models\MiembroCoac;
@@ -12,7 +13,6 @@ use App\Models\ActividadProcesamiento;
 use App\Models\Auditoria;
 use App\Models\Reporte;
 
-
 use Illuminate\Http\Request;
 
 class UsuarioController extends Controller
@@ -22,6 +22,9 @@ class UsuarioController extends Controller
      */
     public function index()
     {
+        // =========================
+        // LISTADOS EXISTENTES (NO SE TOCAN)
+        // =========================
         $usuarios = Usuario::orderBy('id')->get();
         $sujetos = SujetoDato::orderBy('id')->get();
         $miembros = MiembroCoac::orderBy('id')->get();
@@ -33,9 +36,56 @@ class UsuarioController extends Controller
         $auditorias = Auditoria::orderBy('id')->get();
         $reportes = Reporte::orderBy('id')->get();
 
-        return view('index', compact('usuarios','sujetos','miembros','productos','consentimientos','dsars','incidentes','procesamientos',
+        // =========================
+        // 🔥 KPIs (NUEVO – NO ROMPE NADA)
+        // =========================
+
+        // KPI 1: Total Sujetos de Datos
+        $kpi_total_sujetos = SujetoDato::count();
+
+        // KPI 2: Consentimientos Activos
+        $kpi_consentimientos_activos = Consentimiento::where('estado', 'otorgado')->count();
+
+        // KPI 3: Total Solicitudes DSAR
+        $kpi_total_dsar = SolicitudDsar::count();
+
+        // KPI 4: Incidentes Abiertos
+        $kpi_incidentes_abiertos = IncidenteSeguridad::where('estado', 'abierto')->count();
+
+        // KPI 5: DSAR por tipo
+        $kpi_dsar_por_tipo = SolicitudDsar::select('tipo')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('tipo')
+            ->get();
+
+        // KPI 6: Incidentes por severidad
+        $kpi_incidentes_por_severidad = IncidenteSeguridad::select('severidad')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('severidad')
+            ->get();
+
+        // =========================
+        // RETURN (MISMA VISTA, MÁS DATOS)
+        // =========================
+        return view('index', compact(
+            'usuarios',
+            'sujetos',
+            'miembros',
+            'productos',
+            'consentimientos',
+            'dsars',
+            'incidentes',
+            'procesamientos',
             'auditorias',
-            'reportes'
+            'reportes',
+
+            // KPIs
+            'kpi_total_sujetos',
+            'kpi_consentimientos_activos',
+            'kpi_total_dsar',
+            'kpi_incidentes_abiertos',
+            'kpi_dsar_por_tipo',
+            'kpi_incidentes_por_severidad'
         ));
     }
 
@@ -52,24 +102,11 @@ class UsuarioController extends Controller
         return redirect()->back()->with('success', 'Estado actualizado');
     }
 
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
             'nombre_completo' => 'required|string|max:150',
-            'email' => 'required|email|',
+            'email' => 'required|email',
             'rol' => 'required'
         ]);
 
@@ -81,28 +118,8 @@ class UsuarioController extends Controller
         ]);
 
         return redirect()->back();
-
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $usuario = Usuario::findOrFail($id);
@@ -116,11 +133,6 @@ class UsuarioController extends Controller
         return redirect()->back();
     }
 
-
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         $usuario = Usuario::findOrFail($id);

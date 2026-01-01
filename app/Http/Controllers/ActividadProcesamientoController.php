@@ -2,63 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActividadProcesamiento;
 use Illuminate\Http\Request;
 
 class ActividadProcesamientoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $procesamientos = ActividadProcesamiento::orderBy('id', 'desc')->get();
+        return view('actividades_procesamiento.index', compact('actividades'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
-    }
+        ActividadProcesamiento::create([
+            'codigo' => $request->codigo,
+            'nombre' => $request->nombre,
+            'responsable' => $request->responsable,
+            'finalidad' => $request->finalidad,
+            'base_legal' => $request->base_legal,
+            'categorias_datos' => $request->categorias_datos,
+            'plazo_conservacion' => $request->plazo_conservacion,
+            'medidas_seguridad' => $request->medidas_seguridad,
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect('/')->with('success', 'Actividad registrada correctamente');
     }
 }

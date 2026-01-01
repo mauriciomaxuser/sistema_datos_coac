@@ -2,63 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Auditoria;
 use Illuminate\Http\Request;
 
 class AuditoriaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // LISTAR
     public function index()
     {
-        //
+        $auditorias = Auditoria::orderBy('id', 'desc')->get();
+        return view('auditorias.index', compact('auditoria'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+    // VER DETALLE
+public function show($id)
+{
+    $auditoria = Auditoria::find($id);
+    
+    if (!$auditoria) {
+        return redirect()->route('auditorias.index')
+            ->with('error', 'Auditoría no encontrada');
     }
+    
+    // RUTA ABSOLUTA a la vista
+    $viewPath = resource_path('views/auditorias/show.blade.php');
+    
+    // Si no existe el archivo, lo creamos automáticamente
+    if (!file_exists($viewPath)) {
+        // Crea la carpeta si no existe
+        if (!is_dir(resource_path('views/auditorias'))) {
+            mkdir(resource_path('views/auditorias'), 0755, true);
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+        
+        // Crea el archivo
+        file_put_contents($viewPath, $contenido);
+    }
+    
+    // Ahora muestra la vista
+    return view('auditorias.show', compact('auditoria'));
+}
+
+    // GUARDAR
     public function store(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'codigo_aud'   => 'required|max:50|unique:auditorias,codigo',
+            'tipo_aud'     => 'required',
+            'auditor'      => 'required|max:150',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin'    => 'nullable|date',
+            'estado_aud'   => 'required',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        Auditoria::create([
+            'codigo'        => $request->codigo_aud,
+            'tipo'          => $request->tipo_aud,
+            'auditor'       => $request->auditor,
+            'fecha_inicio'  => $request->fecha_inicio,
+            'fecha_fin'     => $request->fecha_fin,
+            'estado'        => $request->estado_aud,
+            'alcance'       => $request->alcance,
+            'hallazgos'     => $request->hallazgos,
+        ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->back()->with('success', 'Auditoría registrada correctamente');
     }
 }
