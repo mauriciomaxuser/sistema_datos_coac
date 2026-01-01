@@ -84,19 +84,20 @@ return [
         ],
 
         'pgsql' => [
-            'driver' => 'pgsql',
-            'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => env('DB_CHARSET', 'utf8'),
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'search_path' => 'public',
-            'sslmode' => 'prefer',
-        ],
+    'driver'   => 'pgsql',
+    'url'       => env('DB_URL'),
+    'host'      => env('DB_HOST', 'trolley.proxy.rlwy.net'),   // Cambiar a tu host
+    'port'      => env('DB_PORT', '29156'),                    // Cambiar al puerto correcto
+    'database'  => env('DB_DATABASE', 'railway'),              // Cambiar al nombre correcto de la base de datos
+    'username'  => env('DB_USERNAME', 'postgres'),             // Cambiar al usuario correcto
+    'password'  => env('DB_PASSWORD', 'iGwrIrUnVBLegHUIzRIiuBJplfjpjLqH'),  // Cambiar a tu contraseña
+    'charset'   => env('DB_CHARSET', 'utf8'),
+    'prefix'    => '',
+    'prefix_indexes' => true,
+    'search_path' => 'public',
+    'sslmode'   => 'prefer',
+],
+
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
@@ -127,7 +128,7 @@ return [
     */
 
     'migrations' => [
-        'table' => 'migrations',
+        'table' => '',
         'update_date_on_publish' => true,
     ],
 
