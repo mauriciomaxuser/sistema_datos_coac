@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\Auth\LoginController;
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
@@ -10,6 +11,15 @@ use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\IncidenteSeguridadController;
 use App\Http\Controllers\MiembroController;
 use App\Http\Controllers\SolicitudDsarController;
+use Illuminate\Support\Facades\Auth;
+// ruta para cerrar sesion ---------------------------------
+Route::post('/logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+
+    return redirect('/login');
+})->name('logout');
 
 
 // rutas de usuarios y la que define el index ------------
@@ -66,3 +76,12 @@ Route::post('/miembros', [MiembroController::class, 'store'])->name('miembros.st
 Route::put('/miembros/{id}', [MiembroController::class, 'update'])->name('miembros.update');
 Route::delete('/miembros/{id}', [MiembroController::class, 'destroy'])->name('miembros.destroy');
 Route::put('/miembros/{id}/estado', [MiembroController::class, 'cambiarEstado'])->name('miembros.estado');
+
+// rutas del login--------------------------------------------------------------
+Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/', [UsuarioController::class, 'index'])->name('index');
+});

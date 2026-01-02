@@ -12,6 +12,7 @@ use App\Models\IncidenteSeguridad;
 use App\Models\ActividadProcesamiento;
 use App\Models\Auditoria;
 use App\Models\Reporte;
+use Illuminate\Support\Facades\Hash;
 
 use Illuminate\Http\Request;
 
@@ -36,23 +37,14 @@ class UsuarioController extends Controller
         $auditorias = Auditoria::orderBy('id')->get();
         $reportes = Reporte::orderBy('id')->get();
 
-        // =========================
-        // 🔥 KPIs (NUEVO – NO ROMPE NADA)
-        // =========================
-
-        // KPI 1: Total Sujetos de Datos
         $kpi_total_sujetos = SujetoDato::count();
 
-        // KPI 2: Consentimientos Activos
         $kpi_consentimientos_activos = Consentimiento::where('estado', 'otorgado')->count();
 
-        // KPI 3: Total Solicitudes DSAR
         $kpi_total_dsar = SolicitudDsar::count();
 
-        // KPI 4: Incidentes Abiertos
         $kpi_incidentes_abiertos = IncidenteSeguridad::where('estado', 'abierto')->count();
 
-        // KPI 5: DSAR por tipo
         $kpi_dsar_por_tipo = SolicitudDsar::select('tipo')
             ->selectRaw('COUNT(*) as total')
             ->groupBy('tipo')
@@ -64,9 +56,6 @@ class UsuarioController extends Controller
             ->groupBy('severidad')
             ->get();
 
-        // =========================
-        // RETURN (MISMA VISTA, MÁS DATOS)
-        // =========================
         return view('index', compact(
             'usuarios',
             'sujetos',
@@ -114,7 +103,8 @@ class UsuarioController extends Controller
             'nombre_completo' => $request->nombre_completo,
             'email' => $request->email,
             'rol' => $request->rol,
-            'estado' => 'activo'
+            'estado' => 'activo',
+            'password' => Hash::make('123456')
         ]);
 
         return redirect()->back();
