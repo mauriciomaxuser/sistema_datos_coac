@@ -8,14 +8,12 @@ use Illuminate\Support\Facades\DB;
 
 class AuditoriaController extends Controller
 {
-    // LISTAR
     public function index()
     {
-        $auditorias = Auditoria::orderBy('id', 'desc')->get();
+        $auditorias = Auditoria::orderBy('id', 'desc')->paginate(10);
         return view('auditorias.index', compact('auditorias'));
     }
 
-    // VER DETALLE
     public function show($id)
     {
         $auditoria = Auditoria::find($id);
@@ -28,7 +26,6 @@ class AuditoriaController extends Controller
         return view('auditorias.show', compact('auditoria'));
     }
 
-    // GUARDAR
     public function store(Request $request)
     {
         $request->validate([
@@ -43,7 +40,6 @@ class AuditoriaController extends Controller
 
         DB::transaction(function () use ($request) {
 
-            // Autoincrement lógico del código
             $ultimoCodigo = Auditoria::lockForUpdate()->max('codigo');
             $nuevoCodigo = $ultimoCodigo ? $ultimoCodigo + 1 : 1;
 

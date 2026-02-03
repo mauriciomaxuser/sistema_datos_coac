@@ -102,26 +102,36 @@
                 <input type="hidden" name="_method" id="form_method" value="POST">
                 <input type="hidden" name="id" id="usuario_id">
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Nombre Completo *</label>
-                        <input type="text" name="nombre_completo" id="nombre_completo">
-
-                    </div>
-                    <div class="form-group">
-                        <label>Email *</label>
-                        <input type="email" name="email" >
-                    </div>
-                    <div class="form-group">
-                        <label>Rol *</label>
-                        <select name="rol" id="rol" >
-                            <option value="">Seleccionar...</option>
-                            <option value="admin">Administrador</option>
-                            <option value="dpo">DPO (Oficial de Protección)</option>
-                            <option value="auditor">Auditor</option>
-                            <option value="operador">Operador</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label>Nombres y apellidos *</label>
+                    <input 
+                        type="text" 
+                        name="nombre_completo" 
+                        id="nombre_completo"
+                        placeholder="Ingrese sus nombres y apellidos completos">
+                    
                 </div>
+
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input 
+                        type="email" 
+                        name="email"
+                        placeholder="Ingrese un correo electrónico válido">
+                </div>
+
+                <div class="form-group">
+                    <label>Rol *</label>
+                    <select name="rol" id="rol">
+                        <option value="">Seleccionar...</option>
+                        <option value="admin">Administrador</option>
+                        <option value="dpo">Oficial de Protección de Datos</option>
+                        <option value="auditor">Auditor</option>
+                        <option value="operador">Operador</option>
+                    </select>
+                </div>
+            </div>
+
                 <button type="submit" class="btn btn-primary">Agregar Usuario</button>
             </form>
             
@@ -130,7 +140,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Nombre</th>
+                            <th>Nombres y apellidos</th>
                             <th>Email</th>
                             <th>Rol</th>
                             <th>Estado</th>
@@ -143,7 +153,8 @@
                             <td>{{ $usuario->id }}</td>
                             <td>{{ $usuario->nombre_completo }}</td>
                             <td>{{ $usuario->email }}</td>
-                            <td>{{ ucfirst($usuario->rol) }}</td>
+                            <td>{{ $usuario->rol_texto }}</td>
+
                             <td>
                                 @if($usuario->estado === 'activo')
                                     <span class="badge badge-success">Activo</span>
@@ -206,7 +217,7 @@
                         <input type="text" name="cedula" >
                     </div>
                     <div class="form-group">
-                        <label>Nombre Completo *</label>
+                        <label>Nombres y apellidos *</label>
                         <input type="text" name="nombre" >
                     </div>
                     <div class="form-group">
@@ -291,6 +302,7 @@
                 </table>
             </div>
         </div>
+        
         <!-- MIEMBROS COAC -->
         <div id="miembros" class="content-section">
             <h2 class="section-title">Gestión de Miembros de la Cooperativa</h2>
@@ -309,45 +321,111 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Número de Socio *</label>
-                        <input type="text" name="numero_socio" id="miembro_numero_socio" required>
-                    </div>
-
-                    <div class="form-group">
                         <label>Cédula *</label>
-                        <input type="text" name="cedula" id="miembro_cedula" required>
+                        <input
+                            type="text"
+                            name="cedula"
+                            id="miembro_cedula"
+                            value="{{ old('cedula') }}"
+                            class="{{ $errors->has('cedula') ? 'input-error' : '' }}"
+                            required>
+
+                        @error('cedula')
+                            <small class="text-error">{{ $message }}</small>
+                        @enderror
                     </div>
 
                     <div class="form-group">
-                        <label>Nombre Completo *</label>
-                        <input type="text" name="nombre_completo" id="miembro_nombre_completo" required>
+                        <label>Nombres *</label>
+                        <input
+                            type="text"
+                            name="nombres"
+                            id="miembro_nombres"
+                            value="{{ old('nombres') }}"
+                            class="{{ $errors->has('nombres') ? 'input-error' : '' }}"
+                            required>
+
+                        @error('nombres')
+                            <small class="text-error">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label>Apellidos *</label>
+                        <input
+                            type="text"
+                            name="apellidos"
+                            id="miembro_apellidos"
+                            value="{{ old('apellidos') }}"
+                            class="{{ $errors->has('apellidos') ? 'input-error' : '' }}"
+                            required>
+
+                        @error('apellidos')
+                            <small class="text-error">{{ $message }}</small>
+                        @enderror
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label>Fecha de Ingreso *</label>
-                        <input type="date" name="fecha_ingreso" id="miembro_fecha_ingreso" required>
+                        <input
+                            type="date"
+                            name="fecha_ingreso"
+                            id="miembro_fecha_ingreso"
+                            value="{{ old('fecha_ingreso') }}"
+                            min="1920-01-01"
+                            max="{{ date('Y-m-d') }}"
+                            class="{{ $errors->has('fecha_ingreso') ? 'input-error' : '' }}"
+                            required>
+
+                        @error('fecha_ingreso')
+                            <small class="text-error">{{ $message }}</small>
+                        @enderror
                     </div>
 
                     <div class="form-group">
                         <label>Categoría *</label>
-                        <select name="categoria" id="miembro_categoria" required>
+                        <select
+                            name="categoria"
+                            id="miembro_categoria"
+                            class="{{ $errors->has('categoria') ? 'input-error' : '' }}"
+                            required>
                             <option value="">Seleccionar...</option>
-                            <option value="activo">Activo</option>
-                            <option value="inactivo">Inactivo</option>
-                            <option value="honorario">Honorario</option>
+                            <option value="activo" {{ old('categoria')=='activo'?'selected':'' }}>Activo</option>
+                            <option value="inactivo" {{ old('categoria')=='inactivo'?'selected':'' }}>Inactivo</option>
+                            <option value="honorario" {{ old('categoria')=='honorario'?'selected':'' }}>Honorario</option>
                         </select>
+
+                        @error('categoria')
+                            <small class="text-error">{{ $message }}</small>
+                        @enderror
                     </div>
 
                     <div class="form-group">
-                        <label>Aportación Inicial</label>
-                        <input type="number" name="aportacion" id="miembro_aportacion" step="0.01" value="0">
+                        <label>Aportación Inicial (máx. 10.000)</label>
+                        <input
+                            type="number"
+                            name="aportacion"
+                            id="miembro_aportacion"
+                            value="{{ old('aportacion', 0) }}"
+                            step="0.01"
+                            min="0"
+                            max="10000"
+                            class="{{ $errors->has('aportacion') ? 'input-error' : '' }}">
+
+                        @error('aportacion')
+                            <small class="text-error">{{ $message }}</small>
+                        @enderror
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" id="btnMiembroSubmit">Registrar Miembro</button>
-                <button type="button" class="btn btn-secondary" onclick="resetFormularioMiembros()">Cancelar</button>
+                <button type="submit" class="btn btn-primary" id="btnMiembroSubmit">
+                    Registrar Miembro
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetFormularioMiembros()">
+                    Cancelar
+                </button>
             </form>
 
             <!-- TABLA -->
@@ -367,62 +445,51 @@
 
                     <tbody>
                         @foreach($miembros as $miembro)
-                            <tr>
-                                <td>{{ $miembro->numero_socio }}</td>
-                                <td>{{ $miembro->cedula }}</td>
-                                <td>{{ $miembro->nombre_completo }}</td>
-                                <td>{{ \Carbon\Carbon::parse($miembro->fecha_ingreso)->format('d/m/Y') }}</td>
-                                <td>{{ ucfirst($miembro->categoria) }}</td>
-                                <td>
-                                    @if($miembro->estado === 'vigente')
-                                        <span class="badge badge-success">Vigente</span>
-                                    @else
-                                        <span class="badge badge-danger">Inactivo</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <!-- BOTÓN EDITAR CORREGIDO -->
-                                    <button class="btn btn-secondary btn-editar-miembro" 
-                                        data-id="{{ $miembro->id }}"
-                                        data-numero="{{ $miembro->numero_socio }}"
-                                        data-cedula="{{ $miembro->cedula }}"
-                                        data-nombre="{{ $miembro->nombre_completo }}"
-                                        data-fecha="{{ $miembro->fecha_ingreso }}"
-                                        data-categoria="{{ $miembro->categoria }}"
-                                        data-aportacion="{{ $miembro->aportacion ?? 0 }}">
-                                        Editar
+                        <tr>
+                            <td>{{ $miembro->numero_socio }}</td>
+                            <td>{{ $miembro->cedula }}</td>
+                            <td>{{ $miembro->nombre_completo }}</td>
+                            <td>{{ \Carbon\Carbon::parse($miembro->fecha_ingreso)->format('d/m/Y') }}</td>
+                            <td>{{ ucfirst($miembro->categoria) }}</td>
+                            <td>
+                                @if($miembro->estado === 'vigente')
+                                    <span class="badge badge-success">Vigente</span>
+                                @else
+                                    <span class="badge badge-danger">Inactivo</span>
+                                @endif
+                            </td>
+                            <td>
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary btn-editar-miembro"
+                                    data-id="{{ $miembro->id }}"
+                                    data-cedula="{{ $miembro->cedula }}"
+                                    data-nombre="{{ $miembro->nombre_completo }}"
+                                    data-fecha="{{ $miembro->fecha_ingreso }}"
+                                    data-categoria="{{ $miembro->categoria }}"
+                                    data-aportacion="{{ $miembro->aportacion ?? 0 }}">
+                                    Editar
+                                </button>
+
+                                <form action="{{ route('miembros.estado', $miembro->id) }}"
+                                    method="POST"
+                                    style="display:inline;">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-warning">
+                                        Cambiar estado
                                     </button>
-
-                                    <form action="{{ route('miembros.estado', $miembro->id) }}"
-                                        method="POST"
-                                        style="display:inline;">
-                                        @csrf
-                                        @method('PUT')
-                                        <button type="submit" class="btn btn-warning">
-                                            Cambiar estado
-                                        </button>
-                                    </form>
-
-                                    <form action="{{ route('miembros.destroy', $miembro->id) }}"
-                                        method="POST"
-                                        style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button"
-                                            class="btn btn-danger"
-                                            onclick="confirmarEliminacion(this)">
-                                            Eliminar
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
+                                </form>
+                            </td>
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
+
+
        <!-- PRODUCTOS FINANCIEROS ------------------------------------------------------>
-        <!-- PRODUCTOS FINANCIEROS ------------------------------------------------------>
         <div id="productos" class="content-section">
             <h2 class="section-title">Productos Financieros</h2>
             
@@ -733,9 +800,7 @@
             }
         }
 
-        // Modificar función editarProducto
         function editarProducto(id, codigo, nombre, tipo, descripcion, datos) {
-            // Rellenar formulario
             document.getElementById('producto_id').value = id;
             document.getElementById('producto_codigo').value = codigo;
             document.getElementById('producto_nombre').value = nombre;
@@ -743,7 +808,6 @@
             document.getElementById('producto_descripcion').value = descripcion;
             document.getElementById('producto_datos').value = datos;
             
-            // Mantener bloqueado en modo edición
             document.getElementById('producto_codigo').setAttribute('readonly', true);
             document.getElementById('producto_codigo').style.backgroundColor = '#f5f5f5';
             
@@ -1330,7 +1394,6 @@
     </div>
 </div>
 
-// ...existing code...
 <script>
 function editarIncidente(id, codigo, fecha, severidad, descripcion, tipo, afectados, estado){
     Swal.fire({
@@ -1560,7 +1623,6 @@ Swal.fire({
 <div id="auditorias" class="content-section">
     <h2 class="section-title">Gestión de Auditorías</h2>
 
-    {{-- FORMULARIO --}}
     <form method="POST" action="{{ route('auditorias.store') }}">
         @csrf
 

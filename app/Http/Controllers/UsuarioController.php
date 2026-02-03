@@ -30,7 +30,8 @@ class UsuarioController extends Controller
         $dsars = SolicitudDsar::orderBy('id')->get();
         $incidentes = IncidenteSeguridad::orderBy('id')->get();
         $procesamientos = ActividadProcesamiento::orderBy('id')->get();
-        $auditorias = Auditoria::orderBy('id')->get();
+        $auditorias = Auditoria::orderBy('id')->paginate(10);
+
         $reportes = Reporte::orderBy('id')->get();
 
         $kpi_total_sujetos = SujetoDato::count();

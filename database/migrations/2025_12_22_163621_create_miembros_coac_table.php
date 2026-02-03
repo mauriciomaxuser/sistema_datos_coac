@@ -13,13 +13,26 @@ return new class extends Migration
     {
         Schema::create('miembros_coac', function (Blueprint $table) {
             $table->id();
-            $table->string('numero_socio',20)->unique();
-            $table->string('cedula',20);
-            $table->string('nombre_completo',150);
+
+            // Número de socio autogenerado (NO se ingresa manualmente)
+            $table->unsignedBigInteger('numero_socio')->unique();
+
+            $table->string('cedula', 20);
+
+            // Nombres y apellidos separados
+            $table->string('nombres', 100);
+            $table->string('apellidos', 100);
+
+            // Fecha válida desde 1920 hasta hoy (se valida en backend y frontend)
             $table->date('fecha_ingreso');
-            $table->string('categoria',30);
-            $table->decimal('aportacion',10,2)->nullable();
-            $table->string('estado',20)->default('vigente');
+
+            $table->string('categoria', 30);
+
+            // Aportación inicial (máx 10.000 validado en backend)
+            $table->decimal('aportacion', 10, 2)->default(0);
+
+            $table->string('estado', 20)->default('vigente');
+
             $table->timestamps();
         });
     }

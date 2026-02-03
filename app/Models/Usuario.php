@@ -22,4 +22,15 @@ class Usuario extends Authenticatable
     protected $hidden = [
         'password'
     ];
+    public function getRolTextoAttribute()
+{
+    return match ($this->rol) {
+        'admin'    => 'Administrador',
+        'dpo'      => 'Oficial de Protección de Datos',
+        'auditor'  => 'Auditor',
+        'operador' => 'Operador',
+        default    => ucfirst($this->rol),
+    };
+}
+
 }
