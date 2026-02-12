@@ -24,8 +24,8 @@
 
         <p>
             <strong>Responsable del tratamiento:</strong><br>
-            Brokseguros Agencia Asesora Productora de Seguros CIA Ltda / 
-            URCO SEGUROS Asesores de Seguros
+            Agencia Asesora Productora de Seguros CIA Ltda / 
+            Asesores de Seguros
         </p>
 
         <p>
@@ -35,7 +35,7 @@
 
         <p>
             Más de <strong>11 años</strong> en el mercado.<br>
-            Cotiza tu seguro con nosotros ‼
+            Cotiza con nosotros ‼
         </p>
 
      
