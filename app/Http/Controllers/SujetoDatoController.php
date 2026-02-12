@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\SujetoDato;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Models\Usuario;
+use App\Models\MiembroCoac;
+
 
 
 class SujetoDatoController extends Controller
