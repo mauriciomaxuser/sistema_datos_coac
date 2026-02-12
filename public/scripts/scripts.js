@@ -204,7 +204,7 @@ $("#formUsuarios").validate({
         },
         direccion: {
             required: true,
-            minlength: 5
+            minlength: 2
         },
         rol: {
             required: true
@@ -242,7 +242,7 @@ $("#formUsuarios").validate({
         },
         direccion: {
             required: "La dirección es obligatoria",
-            minlength: "Debe tener al menos 5 caracteres"
+            minlength: "Debe tener al menos 2 caracteres"
         },
         rol: {
             required: "El rol es obligatorio"

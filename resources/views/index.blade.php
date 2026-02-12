@@ -194,7 +194,7 @@
             </div>
 
             <div class="form-group">
-                <label>Dirección</label>
+                <label>Dirección/Referencia</label>
                 <input type="text" name="direccion" id="direccion" placeholder="Ej: Calle 123">
             </div>
 
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </select>
             </div>
             <div class="form-group col-md-3">
-                <label>Ciudad</label>
+                <label>Ciudad/Referencia</label>
                 <input type="text" name="ciudad" required>
             </div>
             <div class="form-group col-md-3">
