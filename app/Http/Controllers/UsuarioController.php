@@ -95,7 +95,7 @@ class UsuarioController extends Controller
 
     // Generar token de verificación
     $token = Str::random(64);
-    $password_temporal = '123456';
+    
 
     $usuario = Usuario::create([
         'nombre'    => $request->nombre,
@@ -110,8 +110,7 @@ class UsuarioController extends Controller
         'email_verificado' => false,
         'verificado' => false,
         'email_verificacion_token' => $token,
-        'password'  => Hash::make($password_temporal), // password encriptada
-
+        'password'  => Hash::make('123456'), // password temporal
     ]);
 
     try {
