@@ -129,15 +129,31 @@ class UsuarioController extends Controller
     public function update(Request $request, Usuario $usuario)
     {
         $request->validate([
-            'nombre'    => 'required|string|max:100',
-            'apellido'  => 'required|string|max:100',
-            'email'  => 'required|email|unique:usuarios,email,' . $usuario->id . ',id',
-            'cedula' => 'required|digits:10|unique:usuarios,cedula,' . $usuario->id . ',id',
-            'provincia' => 'nullable|string|max:100',
-            'ciudad'    => 'nullable|string|max:100',
-            'direccion' => 'nullable|string|max:255',
-            'rol'       => 'required|string|max:50'
-        ]);
+        'nombre'    => 'required|string|max:100',
+        'apellido'  => 'required|string|max:100',
+        'email'     => 'required|email|unique:usuarios,email,' . $usuario->id . ',id',
+        'cedula'    => [
+            'required',
+            'digits:10',
+            function ($attribute, $value, $fail) use ($usuario) {
+
+                // Validar que la cédula NO exista en ninguna de las tres tablas
+                $existe = Usuario::where('cedula', $value)
+                        ->where('id', '!=', $usuario->id)
+                        ->exists()
+                    || SujetoDato::where('cedula', $value)->exists()
+                    || MiembroCoac::where('cedula', $value)->exists();
+
+                if ($existe) {
+                    $fail('La cédula ya está registrada en el sistema.');
+                }
+            },
+        ],
+        'provincia' => 'nullable|string|max:100',
+        'ciudad'    => 'nullable|string|max:100',
+        'direccion' => 'nullable|string|max:255',
+        'rol'       => 'required|string|max:50'
+    ]);
 
         $usuario->update([
             'nombre'    => $request->nombre,
@@ -197,18 +213,18 @@ class UsuarioController extends Controller
     }
 
     public function verificarCedula(Request $request)
-{
-    $cedula = $request->cedula;
-    $id = $request->id;
+    {
+        $cedula = $request->cedula;
+        $id = $request->id;
 
-    $existe = Usuario::where('cedula', $cedula)
-            ->when($id, fn ($q) => $q->where('id', '!=', $id))
-            ->exists()
-        || SujetoDato::where('cedula', $cedula)->exists()
-        || MiembroCoac::where('cedula', $cedula)->exists();
+        $existe = Usuario::where('cedula', $cedula)
+                ->when($id, fn ($q) => $q->where('id', '!=', $id))
+                ->exists()
+            || SujetoDato::where('cedula', $cedula)->exists()
+            || MiembroCoac::where('cedula', $cedula)->exists();
 
-    return response()->json(!$existe);
-}
+        return response()->json(!$existe);
+    }
 
         public function verificarCorreo($token)
     {
