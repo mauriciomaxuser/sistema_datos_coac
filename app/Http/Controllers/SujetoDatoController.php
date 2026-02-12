@@ -142,18 +142,19 @@ class SujetoDatoController extends Controller
      * Verificar si la cédula existe.
      */
     public function verificarCedula(Request $request)
-    {
-        $cedula = $request->cedula;
-        $id = $request->sujeto_id;
+{
+    $cedula = $request->cedula;
+    $id = $request->sujeto_id; // asegúrate que el input AJAX se llame 'sujeto_id'
 
-        $existe = SujetoDato::where('cedula', $cedula)
-            ->when($id, fn($query) => $query->where('id', '!=', $id))
+    $existe = SujetoDato::where('cedula', $cedula)
+            ->when($id, fn($q) => $q->where('id', '!=', $id))
             ->exists()
-            || Usuario::where('cedula', $cedula)->exists()
-            || MiembroCoac::where('cedula', $cedula)->exists();
+        || Usuario::where('cedula', $cedula)->exists()
+        || MiembroCoac::where('cedula', $cedula)->exists();
 
-        return response()->json(!$existe);
-    }
+    return response()->json(!$existe);
+}
+
 
     /**
      * Verificar si el email existe.
