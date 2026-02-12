@@ -6,8 +6,8 @@ use App\Models\MiembroCoac;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Models\Usuario;
-use App\Models\SujetoDato;
 use Illuminate\Support\Facades\Http;
+use App\Models\SujetoDato;
 
 
 class MiembroController extends Controller
@@ -26,7 +26,7 @@ class MiembroController extends Controller
     $request->validate([
         'cedula' => [
             'required',
-            'digits:10',
+            'digits:10', // Asegura 10 dígitos
             function ($attribute, $value, $fail) {
                 $existe = MiembroCoac::where('cedula', $value)->exists()
                     || Usuario::where('cedula', $value)->exists()
@@ -78,10 +78,10 @@ class MiembroController extends Controller
     $request->validate([
         'cedula' => [
             'required',
-            'digits:10',
-            function ($attribute, $value, $fail) use ($id) {
+            'digits:10', // Asegura que sean 10 dígitos
+            function ($attribute, $value, $fail) use ($miembro) {
                 $existe = MiembroCoac::where('cedula', $value)
-                            ->where('id', '!=', $id)
+                            ->where('id', '!=', $miembro->id) // ignorar al miembro actual
                             ->exists()
                         || Usuario::where('cedula', $value)->exists()
                         || SujetoDato::where('cedula', $value)->exists();
@@ -106,7 +106,7 @@ class MiembroController extends Controller
     $nombreCompleto = trim($request->nombres . ' ' . $request->apellidos);
 
     $miembro->update([
-        'cedula' => $request->cedula,
+        'cedula'          => $request->cedula,
         'nombre_completo' => $nombreCompleto,
         'fecha_ingreso'   => $request->fecha_ingreso,
         'categoria'       => $request->categoria,
@@ -163,14 +163,16 @@ class MiembroController extends Controller
         }
     }
     public function verificarCedula(Request $request)
-{
-    $cedula = $request->cedula;
+    {
+        $cedula = $request->cedula;
+        $id = $request->id;
 
-    $existe = MiembroCoac::where('cedula', $cedula)->exists()
-            || Usuario::where('cedula', $cedula)->exists()
-            || SujetoDato::where('cedula', $cedula)->exists();
+        $existe = MiembroCoac::where('cedula', $cedula)
+                ->when($id, fn ($q) => $q->where('id', '!=', $id))
+                ->exists()
+            || SujetoDato::where('cedula', $cedula)->exists()
+            || Usuario::where('cedula', $cedula)->exists();
 
-    return response()->json(!$existe);
-}
-
+        return response()->json(!$existe);
+    }
 }
