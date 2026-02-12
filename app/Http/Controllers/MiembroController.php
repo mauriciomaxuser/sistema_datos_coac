@@ -72,50 +72,50 @@ class MiembroController extends Controller
     // ACTUALIZAR (NO editar cédula)
     // ==========================
     public function update(Request $request, $id)
-    {
-        $miembro = MiembroCoac::findOrFail($id);
+{
+    $miembro = MiembroCoac::findOrFail($id);
 
-        $request->validate([
-            // Si quieres permitir editar la cédula, descomenta este bloque:
-            /*
-            'cedula' => [
-                'required',
-                'digits:10',
-                function ($attribute, $value, $fail) use ($id) {
-                    $existe = MiembroCoac::where('cedula', $value)->where('id', '!=', $id)->exists()
+    $request->validate([
+        'cedula' => [
+            'required',
+            'digits:10',
+            function ($attribute, $value, $fail) use ($id) {
+                $existe = MiembroCoac::where('cedula', $value)
+                            ->where('id', '!=', $id)
+                            ->exists()
                         || Usuario::where('cedula', $value)->exists()
                         || SujetoDato::where('cedula', $value)->exists();
 
-                    if ($existe) {
-                        $fail('La cédula ya está registrada en el sistema.');
-                    }
-                },
-            ],
-            */
-            'nombres' => ['required', 'string', 'max:100'],
-            'apellidos' => ['required', 'string', 'max:100'],
-            'fecha_ingreso' => [
-                'required',
-                'date',
-                'after_or_equal:1920-01-01',
-                'before_or_equal:now'
-            ],
-            'categoria' => ['required', Rule::in(['activo', 'inactivo', 'honorario'])],
-            'aportacion' => ['nullable', 'numeric', 'min:0', 'max:10000'],
-        ]);
+                if ($existe) {
+                    $fail('La cédula ya está registrada en el sistema.');
+                }
+            },
+        ],
+        'nombres' => ['required', 'string', 'max:100'],
+        'apellidos' => ['required', 'string', 'max:100'],
+        'fecha_ingreso' => [
+            'required',
+            'date',
+            'after_or_equal:1920-01-01',
+            'before_or_equal:now'
+        ],
+        'categoria' => ['required', Rule::in(['activo', 'inactivo', 'honorario'])],
+        'aportacion' => ['nullable', 'numeric', 'min:0', 'max:10000'],
+    ]);
 
-        $nombreCompleto = trim($request->nombres . ' ' . $request->apellidos);
+    $nombreCompleto = trim($request->nombres . ' ' . $request->apellidos);
 
-        $miembro->update([
-            // 'cedula' => $request->cedula, // descomenta si permites editar
-            'nombre_completo' => $nombreCompleto,
-            'fecha_ingreso'   => $request->fecha_ingreso,
-            'categoria'       => $request->categoria,
-            'aportacion'      => $request->aportacion ?? 0.00,
-        ]);
+    $miembro->update([
+        'cedula' => $request->cedula,
+        'nombre_completo' => $nombreCompleto,
+        'fecha_ingreso'   => $request->fecha_ingreso,
+        'categoria'       => $request->categoria,
+        'aportacion'      => $request->aportacion ?? 0.00,
+    ]);
 
-        return redirect()->back()->with('success', 'Miembro actualizado correctamente');
-    }
+    return redirect()->back()->with('success', 'Miembro actualizado correctamente');
+}
+
 
     // ==========================
     // CAMBIAR ESTADO
