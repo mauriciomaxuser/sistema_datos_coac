@@ -35,7 +35,6 @@ class UsuarioController extends Controller
         $procesamientos = ActividadProcesamiento::orderBy('id')->get();
         $auditorias = Auditoria::orderBy('id')->paginate(10);
         $reportes = Reporte::orderBy('id')->get();
-
         // KPIs
         $kpi_total_sujetos = SujetoDato::count();
         $kpi_consentimientos_activos = Consentimiento::where('estado', 'otorgado')->count();
@@ -70,15 +69,29 @@ class UsuarioController extends Controller
     public function store(Request $request)
 {
     $request->validate([
-        'nombre'    => 'required|string|max:100',
-        'apellido'  => 'required|string|max:100',
-        'email'     => 'required|email|unique:usuarios,email',
-        'cedula'    => 'required|digits:10|unique:usuarios,cedula',
-        'provincia' => 'nullable|string|max:100',
-        'ciudad'    => 'nullable|string|max:100',
-        'direccion' => 'nullable|string|max:255',
-        'rol'       => 'required|string|max:50'
-    ]);
+    'nombre'    => 'required|string|max:100',
+    'apellido'  => 'required|string|max:100',
+    'email'     => 'required|email|unique:usuarios,email',
+    'cedula'    => [
+        'required',
+        'digits:10',
+        function ($attribute, $value, $fail) {
+
+            $existe = Usuario::where('cedula', $value)->exists()
+                || SujetoDato::where('cedula', $value)->exists()
+                || MiembroCoac::where('cedula', $value)->exists();
+
+            if ($existe) {
+                $fail('La cédula ya está registrada en el sistema.');
+            }
+        },
+    ],
+    'provincia' => 'nullable|string|max:100',
+    'ciudad'    => 'nullable|string|max:100',
+    'direccion' => 'nullable|string|max:255',
+    'rol'       => 'required|string|max:50'
+]);
+
 
     // Generar token de verificación
     $token = Str::random(64);
@@ -184,17 +197,19 @@ class UsuarioController extends Controller
     }
 
     public function verificarCedula(Request $request)
-    {
-        $cedula = $request->cedula;
-        $id = $request->id;
+{
+    $cedula = $request->cedula;
+    $id = $request->id;
 
-        $existe = Usuario::where('cedula', $cedula)
-            ->where('verificado', true)
+    $existe = Usuario::where('cedula', $cedula)
             ->when($id, fn ($q) => $q->where('id', '!=', $id))
-            ->exists();
+            ->exists()
+        || SujetoDato::where('cedula', $cedula)->exists()
+        || MiembroCoac::where('cedula', $cedula)->exists();
 
-        return response()->json(!$existe);
-    }
+    return response()->json(!$existe);
+}
+
         public function verificarCorreo($token)
     {
         $usuario = Usuario::where('email_verificacion_token', $token)->firstOrFail();
