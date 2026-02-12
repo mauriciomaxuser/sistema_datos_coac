@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\MiembroCoac;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Models\Usuario;
+use App\Models\SujetoDato;
+use Illuminate\Support\Facades\Http;
+
 
 class MiembroController extends Controller
 {
@@ -18,40 +22,51 @@ class MiembroController extends Controller
     // REGISTRAR
     // ==========================
     public function store(Request $request)
-    {
-        $request->validate([
-            'cedula' => ['required', 'string', 'max:20', 'unique:miembros_coac,cedula'],
-            'nombres' => ['required', 'string', 'max:100'],
-            'apellidos' => ['required', 'string', 'max:100'],
-            'fecha_ingreso' => [
-                'required',
-                'date',
-                'after_or_equal:1920-01-01',
-                'before_or_equal:now'
-            ],
-            'categoria' => ['required', Rule::in(['activo', 'inactivo', 'honorario'])],
-            'aportacion' => ['nullable', 'numeric', 'min:0', 'max:10000'],
-        ], [
-            'cedula.unique' => 'Ya existe un miembro con ese número de cédula.',
-        ]);
+{
+    $request->validate([
+        'cedula' => [
+            'required',
+            'digits:10',
+            function ($attribute, $value, $fail) {
+                $existe = MiembroCoac::where('cedula', $value)->exists()
+                    || Usuario::where('cedula', $value)->exists()
+                    || SujetoDato::where('cedula', $value)->exists();
 
-        $ultimoNumero = MiembroCoac::max('numero_socio');
-        $nuevoNumero = $ultimoNumero ? ((int)$ultimoNumero + 1) : 1;
+                if ($existe) {
+                    $fail('La cédula ya está registrada en el sistema.');
+                }
+            },
+        ],
+        'nombres' => ['required', 'string', 'max:100'],
+        'apellidos' => ['required', 'string', 'max:100'],
+        'fecha_ingreso' => [
+            'required',
+            'date',
+            'after_or_equal:1920-01-01',
+            'before_or_equal:now'
+        ],
+        'categoria' => ['required', Rule::in(['activo', 'inactivo', 'honorario'])],
+        'aportacion' => ['nullable', 'numeric', 'min:0', 'max:10000'],
+    ]);
 
-        $nombreCompleto = trim($request->nombres . ' ' . $request->apellidos);
+    $ultimoNumero = MiembroCoac::max('numero_socio');
+    $nuevoNumero = $ultimoNumero ? ((int)$ultimoNumero + 1) : 1;
 
-        MiembroCoac::create([
-            'numero_socio'     => (string)$nuevoNumero,
-            'cedula'           => $request->cedula,
-            'nombre_completo'  => $nombreCompleto,
-            'fecha_ingreso'    => $request->fecha_ingreso, // datetime
-            'categoria'        => $request->categoria,
-            'aportacion'       => $request->aportacion ?? 0.00,
-            'estado'           => 'vigente',
-        ]);
+    $nombreCompleto = trim($request->nombres . ' ' . $request->apellidos);
 
-        return redirect()->back()->with('success', 'Miembro registrado correctamente');
-    }
+    MiembroCoac::create([
+        'numero_socio'     => (string)$nuevoNumero,
+        'cedula'           => $request->cedula,
+        'nombre_completo'  => $nombreCompleto,
+        'fecha_ingreso'    => $request->fecha_ingreso,
+        'categoria'        => $request->categoria,
+        'aportacion'       => $request->aportacion ?? 0.00,
+        'estado'           => 'vigente',
+    ]);
+
+    return redirect()->back()->with('success', 'Miembro registrado correctamente');
+}
+
 
     // ==========================
     // ACTUALIZAR (NO editar cédula)
@@ -61,7 +76,22 @@ class MiembroController extends Controller
         $miembro = MiembroCoac::findOrFail($id);
 
         $request->validate([
-            // cedula NO se valida porque NO se edita
+            // Si quieres permitir editar la cédula, descomenta este bloque:
+            /*
+            'cedula' => [
+                'required',
+                'digits:10',
+                function ($attribute, $value, $fail) use ($id) {
+                    $existe = MiembroCoac::where('cedula', $value)->where('id', '!=', $id)->exists()
+                        || Usuario::where('cedula', $value)->exists()
+                        || SujetoDato::where('cedula', $value)->exists();
+
+                    if ($existe) {
+                        $fail('La cédula ya está registrada en el sistema.');
+                    }
+                },
+            ],
+            */
             'nombres' => ['required', 'string', 'max:100'],
             'apellidos' => ['required', 'string', 'max:100'],
             'fecha_ingreso' => [
@@ -77,6 +107,7 @@ class MiembroController extends Controller
         $nombreCompleto = trim($request->nombres . ' ' . $request->apellidos);
 
         $miembro->update([
+            // 'cedula' => $request->cedula, // descomenta si permites editar
             'nombre_completo' => $nombreCompleto,
             'fecha_ingreso'   => $request->fecha_ingreso,
             'categoria'       => $request->categoria,
@@ -131,4 +162,15 @@ class MiembroController extends Controller
             return response()->json(['error' => 'Excepción: '.$e->getMessage()], 500);
         }
     }
+    public function verificarCedula(Request $request)
+{
+    $cedula = $request->cedula;
+
+    $existe = MiembroCoac::where('cedula', $cedula)->exists()
+            || Usuario::where('cedula', $cedula)->exists()
+            || SujetoDato::where('cedula', $cedula)->exists();
+
+    return response()->json(!$existe);
+}
+
 }
