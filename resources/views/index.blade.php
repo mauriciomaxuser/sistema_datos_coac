@@ -398,11 +398,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 </select>
             </div>
             <div class="form-group col-md-3">
-                <label>Ciudad/Referencia</label>
+                <label>Ciudad</label>
                 <input type="text" name="ciudad" required>
             </div>
             <div class="form-group col-md-3">
-                <label>Dirección</label>
+                <label>Dirección/Referencia</label>
                 <input type="text" name="direccion" required>
             </div>
         </div>

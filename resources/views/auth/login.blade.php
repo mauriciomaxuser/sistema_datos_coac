@@ -76,6 +76,10 @@
             <button type="submit" class="btn btn-primary">
                 Ingresar
             </button>
+            <!-- Botón/Enlace Olvidaste tu contraseña -->
+        <div class="forgot-password">
+            <a href="{{ route('password.request') }}">¿Olvidaste tu contraseña?</a>
+        </div>
         </form>
     </main>
 
