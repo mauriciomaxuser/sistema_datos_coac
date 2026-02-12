@@ -9,113 +9,114 @@ use App\Models\Usuario;
 use Illuminate\Support\Facades\Http;
 use App\Models\SujetoDato;
 
-
 class MiembroController extends Controller
 {
     public function index()
     {
         $miembros = MiembroCoac::orderBy('id', 'asc')->get();
-        return view('tu_vista', compact('miembros')); // cambia tu_vista si tu blade se llama distinto
+        return view('tu_vista', compact('miembros'));
     }
 
     // ==========================
     // REGISTRAR
     // ==========================
     public function store(Request $request)
-{
-    $request->validate([
-        'cedula' => [
-            'required',
-            'digits:10', // Asegura 10 dígitos
-            function ($attribute, $value, $fail) {
-                $existe = MiembroCoac::where('cedula', $value)->exists()
-                    || Usuario::where('cedula', $value)->exists()
-                    || SujetoDato::where('cedula', $value)->exists();
+    {
+        $request->validate([
+            'cedula' => [
+                'required',
+                'digits:10',
+                function ($attribute, $value, $fail) {
+                    $value = trim($value); // limpiar espacios
 
-                if ($existe) {
-                    $fail('La cédula ya está registrada en el sistema.');
-                }
-            },
-        ],
-        'nombres' => ['required', 'string', 'max:100'],
-        'apellidos' => ['required', 'string', 'max:100'],
-        'fecha_ingreso' => [
-            'required',
-            'date',
-            'after_or_equal:1920-01-01',
-            'before_or_equal:now'
-        ],
-        'categoria' => ['required', Rule::in(['activo', 'inactivo', 'honorario'])],
-        'aportacion' => ['nullable', 'numeric', 'min:0', 'max:10000'],
-    ]);
+                    $existe = MiembroCoac::where('cedula', $value)->exists()
+                        || Usuario::where('cedula', $value)->exists()
+                        || SujetoDato::where('cedula', $value)->exists();
 
-    $ultimoNumero = MiembroCoac::max('numero_socio');
-    $nuevoNumero = $ultimoNumero ? ((int)$ultimoNumero + 1) : 1;
+                    if ($existe) {
+                        $fail('La cédula ya está registrada en el sistema.');
+                    }
+                },
+            ],
+            'nombres' => ['required', 'string', 'max:100'],
+            'apellidos' => ['required', 'string', 'max:100'],
+            'fecha_ingreso' => [
+                'required',
+                'date',
+                'after_or_equal:1920-01-01',
+                'before_or_equal:now'
+            ],
+            'categoria' => ['required', Rule::in(['activo', 'inactivo', 'honorario'])],
+            'aportacion' => ['nullable', 'numeric', 'min:0', 'max:10000'],
+        ]);
 
-    $nombreCompleto = trim($request->nombres . ' ' . $request->apellidos);
+        $ultimoNumero = MiembroCoac::max('numero_socio');
+        $nuevoNumero = $ultimoNumero ? ((int)$ultimoNumero + 1) : 1;
 
-    MiembroCoac::create([
-        'numero_socio'     => (string)$nuevoNumero,
-        'cedula'           => $request->cedula,
-        'nombre_completo'  => $nombreCompleto,
-        'fecha_ingreso'    => $request->fecha_ingreso,
-        'categoria'        => $request->categoria,
-        'aportacion'       => $request->aportacion ?? 0.00,
-        'estado'           => 'vigente',
-    ]);
+        $nombreCompleto = trim($request->nombres . ' ' . $request->apellidos);
 
-    return redirect()->back()->with('success', 'Miembro registrado correctamente');
-}
+        MiembroCoac::create([
+            'numero_socio'     => (string)$nuevoNumero,
+            'cedula'           => trim($request->cedula),
+            'nombre_completo'  => $nombreCompleto,
+            'fecha_ingreso'    => $request->fecha_ingreso,
+            'categoria'        => $request->categoria,
+            'aportacion'       => $request->aportacion ?? 0.00,
+            'estado'           => 'vigente',
+        ]);
 
+        return redirect()->back()->with('success', 'Miembro registrado correctamente');
+    }
 
     // ==========================
     // ACTUALIZAR (NO editar cédula)
     // ==========================
     public function update(Request $request, $id)
-{
-    $miembro = MiembroCoac::findOrFail($id);
+    {
+        $miembro = MiembroCoac::findOrFail($id);
 
-    $request->validate([
-        'cedula' => [
-            'required',
-            'digits:10', // Asegura que sean 10 dígitos
-            function ($attribute, $value, $fail) use ($miembro) {
-                $existe = MiembroCoac::where('cedula', $value)
-                            ->where('id', '!=', $miembro->id) // ignorar al miembro actual
-                            ->exists()
-                        || Usuario::where('cedula', $value)->exists()
-                        || SujetoDato::where('cedula', $value)->exists();
+        $request->validate([
+            'cedula' => [
+                'required',
+                'digits:10',
+                function ($attribute, $value, $fail) use ($miembro) {
+                    $value = trim($value);
 
-                if ($existe) {
-                    $fail('La cédula ya está registrada en el sistema.');
-                }
-            },
-        ],
-        'nombres' => ['required', 'string', 'max:100'],
-        'apellidos' => ['required', 'string', 'max:100'],
-        'fecha_ingreso' => [
-            'required',
-            'date',
-            'after_or_equal:1920-01-01',
-            'before_or_equal:now'
-        ],
-        'categoria' => ['required', Rule::in(['activo', 'inactivo', 'honorario'])],
-        'aportacion' => ['nullable', 'numeric', 'min:0', 'max:10000'],
-    ]);
+                    $existe = MiembroCoac::where('cedula', $value)
+                                ->where('id', '!=', $miembro->id)
+                                ->exists()
+                            || Usuario::where('cedula', $value)->exists()
+                            || SujetoDato::where('cedula', $value)->exists();
 
-    $nombreCompleto = trim($request->nombres . ' ' . $request->apellidos);
+                    if ($existe) {
+                        $fail('La cédula ya está registrada en el sistema.');
+                    }
+                },
+            ],
+            'nombres' => ['required', 'string', 'max:100'],
+            'apellidos' => ['required', 'string', 'max:100'],
+            'fecha_ingreso' => [
+                'required',
+                'date',
+                'after_or_equal:1920-01-01',
+                'before_or_equal:now'
+            ],
+            'categoria' => ['required', Rule::in(['activo', 'inactivo', 'honorario'])],
+            'aportacion' => ['nullable', 'numeric', 'min:0', 'max:10000'],
+        ]);
 
-    $miembro->update([
-        'cedula'          => $request->cedula,
-        'nombre_completo' => $nombreCompleto,
-        'fecha_ingreso'   => $request->fecha_ingreso,
-        'categoria'       => $request->categoria,
-        'aportacion'      => $request->aportacion ?? 0.00,
-    ]);
+        $nombreCompleto = trim($request->nombres . ' ' . $request->apellidos);
 
-    return redirect()->back()->with('success', 'Miembro actualizado correctamente');
-}
+        $miembro->update([
+            'cedula'          => trim($request->cedula),
+            'nombre_completo' => $nombreCompleto,
+            'fecha_ingreso'   => $request->fecha_ingreso,
+            'categoria'       => $request->categoria,
+            'aportacion'      => $request->aportacion ?? 0.00,
+        ]);
 
+        return redirect()->back()->with('success', 'Miembro actualizado correctamente');
+    }
 
     // ==========================
     // CAMBIAR ESTADO
@@ -129,15 +130,19 @@ class MiembroController extends Controller
 
         return redirect()->back()->with('success', 'Estado del miembro actualizado');
     }
+
+    // ==========================
+    // VALIDAR CÉDULA CON REGISTRO CIVIL
+    // ==========================
     public function buscarCedulaExterna($cedula)
     {
-        // Validación básica
+        $cedula = trim($cedula);
+
         if(strlen($cedula) !== 10 || !is_numeric($cedula)){
             return response()->json(['error' => 'Cédula inválida'], 422);
         }
 
         try {
-            // Consulta al Registro Civil
             $response = Http::asForm()->post('https://si.secap.gob.ec/sisecap/logeo_web/json/busca_persona_registro_civil.php', [
                 'documento' => $cedula,
                 'tipo' => '1'
@@ -162,16 +167,20 @@ class MiembroController extends Controller
             return response()->json(['error' => 'Excepción: '.$e->getMessage()], 500);
         }
     }
+
+    // ==========================
+    // VALIDACIÓN REMOTA AJAX
+    // ==========================
     public function verificarCedula(Request $request)
     {
-        $cedula = $request->cedula;
-        $id = $request->id;
+        $cedula = trim($request->cedula);
+        $id = $request->id ?? null;
 
         $existe = MiembroCoac::where('cedula', $cedula)
-                ->when($id, fn ($q) => $q->where('id', '!=', $id))
-                ->exists()
-            || SujetoDato::where('cedula', $cedula)->exists()
-            || Usuario::where('cedula', $cedula)->exists();
+                    ->when($id, fn ($q) => $q->where('id', '!=', $id))
+                    ->exists()
+                || Usuario::where('cedula', $cedula)->exists()
+                || SujetoDato::where('cedula', $cedula)->exists();
 
         return response()->json(!$existe);
     }
