@@ -24,38 +24,29 @@ class SujetoDatoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-        'cedula' => [
-            'required',
-            'digits:10',
-            function($attribute, $value, $fail) {
-                $existe = \App\Models\Usuario::where('cedula', $value)->exists()
-                    || \App\Models\SujetoDato::where('cedula', $value)->exists()
-                    || \App\Models\MiembroCoac::where('cedula', $value)->exists();
+    'cedula' => [
+        'required',
+        'digits:10',
+        function ($attribute, $value, $fail) {
+            $existe = SujetoDato::where('cedula', $value)->exists()
+                || Usuario::where('cedula', $value)->exists()
+                || MiembroCoac::where('cedula', $value)->exists();
 
-                if ($existe) {
-                    $fail('La cédula ya está registrada en el sistema.');
-                }
-            },
-        ],
-        'nombre' => 'required|string|max:100',
-        'apellido' => 'required|string|max:100',
-        'tipo' => 'required|string|max:50',
-        'email' => [
-            'required',
-            'email',
-            function($attribute, $value, $fail) {
-                $existe = \App\Models\Usuario::where('email', $value)->exists()
-                    || \App\Models\SujetoDato::where('email', $value)->exists();
-                if ($existe) {
-                    $fail('El correo ya está registrado en el sistema.');
-                }
-            },
-        ],
-        'telefono' => 'nullable|string|max:20',
-        'direccion' => 'nullable|string|max:200',
-        'ciudad' => 'nullable|string|max:100',
-        'provincia' => 'required|string|max:100',
-    ]);
+            if ($existe) {
+                $fail('La cédula ya está registrada en el sistema.');
+            }
+        },
+    ],
+    'nombre' => 'required|string|max:100',
+    'apellido' => 'required|string|max:100',
+    'tipo' => 'required|string|max:50',
+    'email' => 'required|email|unique:sujetos_datos,email',
+    'telefono' => 'nullable|string|max:20',
+    'direccion' => 'nullable|string|max:200',
+    'ciudad' => 'nullable|string|max:100',
+    'provincia' => 'required|string|max:100',
+]);
+
 
         SujetoDato::create([
             'cedula' => $request->cedula,
@@ -80,39 +71,31 @@ class SujetoDatoController extends Controller
         $sujeto = SujetoDato::findOrFail($id);
 
         $request->validate([
-        'cedula' => [
-            'required',
-            'digits:10',
-            function($attribute, $value, $fail) use ($sujeto) {
-                $existe = \App\Models\Usuario::where('cedula', $value)->exists()
-                    || \App\Models\SujetoDato::where('cedula', $value)->where('id', '!=', $sujeto->id)->exists()
-                    || \App\Models\MiembroCoac::where('cedula', $value)->exists();
+    'cedula' => [
+        'required',
+        'digits:10',
+        function ($attribute, $value, $fail) use ($id) {
+            $existe = SujetoDato::where('cedula', $value)
+                        ->where('id', '!=', $id)
+                        ->exists()
+                    || Usuario::where('cedula', $value)->exists()
+                    || MiembroCoac::where('cedula', $value)->exists();
 
-                if ($existe) {
-                    $fail('La cédula ya está registrada en el sistema.');
-                }
-            },
-        ],
-        'nombre' => 'required|string|max:100',
-        'apellido' => 'required|string|max:100',
-        'tipo' => 'required|string|max:50',
-        'email' => [
-            'required',
-            'email',
-            function($attribute, $value, $fail) use ($sujeto) {
-                $existe = \App\Models\Usuario::where('email', $value)->exists()
-                    || \App\Models\SujetoDato::where('email', $value)->where('id', '!=', $sujeto->id)->exists();
+            if ($existe) {
+                $fail('La cédula ya está registrada en el sistema.');
+            }
+        },
+    ],
+    'nombre' => 'required|string|max:100',
+    'apellido' => 'required|string|max:100',
+    'tipo' => 'required|string|max:50',
+    'email' => "required|email|unique:sujetos_datos,email,$id",
+    'telefono' => 'nullable|string|max:20',
+    'direccion' => 'nullable|string|max:200',
+    'ciudad' => 'nullable|string|max:100',
+    'provincia' => 'required|string|max:100',
+]);
 
-                if ($existe) {
-                    $fail('El correo ya está registrado en el sistema.');
-                }
-            },
-        ],
-        'telefono' => 'nullable|string|max:20',
-        'direccion' => 'nullable|string|max:200',
-        'ciudad' => 'nullable|string|max:100',
-        'provincia' => 'required|string|max:100',
-    ]);
 
         $sujeto->update([
             'cedula' => $request->cedula,
@@ -144,13 +127,13 @@ class SujetoDatoController extends Controller
     public function verificarCedula(Request $request)
 {
     $cedula = $request->cedula;
-    $id = $request->sujeto_id; // asegúrate que el input AJAX se llame 'sujeto_id'
+    $id = $request->sujeto_id;
 
     $existe = SujetoDato::where('cedula', $cedula)
-            ->when($id, fn($q) => $q->where('id', '!=', $id))
-            ->exists()
-        || Usuario::where('cedula', $cedula)->exists()
-        || MiembroCoac::where('cedula', $cedula)->exists();
+                ->when($id, fn($q) => $q->where('id', '!=', $id))
+                ->exists()
+            || Usuario::where('cedula', $cedula)->exists()
+            || MiembroCoac::where('cedula', $cedula)->exists();
 
     return response()->json(!$existe);
 }
