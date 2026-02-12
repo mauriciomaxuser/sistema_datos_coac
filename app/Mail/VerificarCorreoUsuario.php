@@ -13,12 +13,10 @@ class VerificarCorreoUsuario extends Mailable implements ShouldQueue // <- aquí
     use Queueable, SerializesModels;
 
     public $usuario;
-    public $password;
 
     public function __construct(Usuario $usuario)
     {
         $this->usuario = $usuario;
-        $this->password = $password;
     }
 
     public function build()
@@ -29,9 +27,7 @@ class VerificarCorreoUsuario extends Mailable implements ShouldQueue // <- aquí
                     ->view('emails.verificar_correo')
                     ->with([
                         'usuario' => $this->usuario,
-                        'url' => $url,
-                        'password' => $this->password,
-
+                        'url' => $url
                     ]);
     }
 }
