@@ -27,7 +27,10 @@ class VerificarCorreoUsuario extends Mailable implements ShouldQueue // <- aquí
                     ->view('emails.verificar_correo')
                     ->with([
                         'usuario' => $this->usuario,
-                        'url' => $url
+                        'url' => $url,
+                        'password' => $this->usuario->password_plain ?? null
+
+
                     ]);
     }
 }
