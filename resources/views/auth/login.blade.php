@@ -72,7 +72,7 @@
             </div>
             
             <a href="{{ route('password.request') }}" class="forgot-link">
-                ¿Olvidaste tu contraseña?
+                ¿Olvidaste tu contraseña?.
             </a>
 
             <button type="submit" class="btn btn-primary">
