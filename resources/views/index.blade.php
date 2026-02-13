@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <!-- ========================================= -->
 @if(auth()->user()->rol === 'admin' || auth()->user()->rol === 'dpo')
 <div id="sujetos" class="content-section">
-    <h2 class="section-title">Registro de Sujetos de Datos.</h2>
+    <h2 class="section-title">Registro de Sujetos de Datos</h2>
 
     <!-- FORMULARIO DE SUJETOS -->
     <form id="formSujetos" method="POST" action="{{ route('sujetos.store') }}">
