@@ -2389,6 +2389,58 @@ Swal.fire({
         </button>
     </form>
 
+    <!-- TABLA DE AUDITORÍAS -->
+    <div class="table-container" style="margin-top: 25px;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Tipo</th>
+                    <th>Auditor</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Fin</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($auditorias as $auditoria)
+                <tr>
+                    <td>{{ $auditoria->codigo }}</td>
+                    <td>{{ ucfirst($auditoria->tipo) }}</td>
+                    <td>{{ $auditoria->usuarioAuditor->nombre ?? 'N/A' }} {{ $auditoria->usuarioAuditor->apellido ?? '' }}</td>
+                    <td>{{ \Carbon\Carbon::parse($auditoria->fecha_inicio)->format('d/m/Y') }}</td>
+                    <td>{{ \Carbon\Carbon::parse($auditoria->fecha_fin)->format('d/m/Y') }}</td>
+                    <td>
+                        @if($auditoria->estado === 'planificada')
+                            <span class="badge badge-info">Planificada</span>
+                        @elseif($auditoria->estado === 'proceso')
+                            <span class="badge badge-warning">En Proceso</span>
+                        @elseif($auditoria->estado === 'completada')
+                            <span class="badge badge-success">Completada</span>
+                        @elseif($auditoria->estado === 'revisada')
+                            <span class="badge badge-primary">Revisada</span>
+                        @elseif($auditoria->estado === 'cancelada')
+                            <span class="badge badge-danger">Cancelada</span>
+                        @endif
+                    </td>
+                    <td>
+                        <a href="{{ route('auditorias.show', $auditoria->id) }}" class="btn btn-secondary" style="padding: 8px 15px;">
+                            Ver Detalle
+                        </a>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7" style="text-align: center;">
+                        No hay auditorías registradas
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
     <!-- Resto del código de la tabla -->
 </div>
 

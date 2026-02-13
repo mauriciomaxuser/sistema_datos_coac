@@ -3,7 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Auditoria;
+use App\Models\SujetoDato;
 use App\Models\Usuario;
+use App\Models\MiembroCoac;
+use App\Models\ProductoFinanciero;
+use App\Models\Consentimiento;
+use App\Models\SolicitudDsar;
+use App\Models\IncidenteSeguridad;
+use App\Models\ActividadProcesamiento;
+use App\Models\Reporte;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,7 +30,37 @@ class AuditoriaController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('index', compact('auditorias', 'usuarios'));
+        // Traer todas las variables necesarias para la vista
+        $sujetos = SujetoDato::orderBy('id')->get();
+        $miembros = MiembroCoac::orderBy('id')->get();
+        $productos = ProductoFinanciero::orderBy('id')->get();
+        $consentimientos = Consentimiento::orderBy('id')->get();
+        $dsars = SolicitudDsar::orderBy('id')->get();
+        $incidentes = IncidenteSeguridad::orderBy('id')->get();
+        $procesamientos = ActividadProcesamiento::orderBy('id')->get();
+        $reportes = Reporte::orderBy('id')->get();
+
+        // KPIs
+        $kpi_total_sujetos = SujetoDato::count();
+        $kpi_consentimientos_activos = Consentimiento::where('estado', 'otorgado')->count();
+        $kpi_total_dsar = SolicitudDsar::count();
+        $kpi_incidentes_abiertos = IncidenteSeguridad::where('estado', 'abierto')->count();
+        $kpi_dsar_por_tipo = SolicitudDsar::select('tipo')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('tipo')
+            ->get();
+        $kpi_incidentes_por_severidad = IncidenteSeguridad::select('severidad')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('severidad')
+            ->get();
+
+        // Pasar todas las variables a la vista
+        return view('index', compact(
+            'auditorias', 'usuarios', 'sujetos', 'miembros', 'productos', 
+            'consentimientos', 'dsars', 'incidentes', 'procesamientos', 'reportes',
+            'kpi_total_sujetos', 'kpi_consentimientos_activos', 'kpi_total_dsar',
+            'kpi_incidentes_abiertos', 'kpi_dsar_por_tipo', 'kpi_incidentes_por_severidad'
+        ));
     }
 
     public function store(Request $request)
