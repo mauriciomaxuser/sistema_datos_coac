@@ -7,7 +7,6 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
 class AuditoriaController extends Controller
@@ -30,7 +29,7 @@ class AuditoriaController extends Controller
     {
         try {
 
-            // Convertir fecha DD/MM/YYYY a YYYY-MM-DD
+            // Convertir fecha
             if ($request->filled('fecha_fin')) {
                 $request->merge([
                     'fecha_fin' => Carbon::createFromFormat('d/m/Y', $request->fecha_fin)
@@ -50,7 +49,6 @@ class AuditoriaController extends Controller
 
             DB::beginTransaction();
 
-            // Generación segura de código con bloqueo
             $codigo = $this->generarCodigoAuditoria($validated['tipo_aud']);
 
             $auditoria = Auditoria::create([
@@ -62,7 +60,7 @@ class AuditoriaController extends Controller
                 'estado' => $validated['estado_aud'],
                 'alcance' => $validated['alcance'] ?? null,
                 'hallazgos' => $validated['hallazgos'] ?? null,
-                'creado_por' => auth()->id(),
+                'creado_por' => auth()->id() ?? 1, // 🔴 fallback
             ]);
 
             DB::commit();
@@ -72,7 +70,7 @@ class AuditoriaController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error al crear auditoría: ' . $e->getMessage());
+            Log::error('ERROR STORE AUDITORIA: ' . $e->getMessage());
 
             return redirect()->back()
                 ->withInput()
@@ -106,7 +104,7 @@ class AuditoriaController extends Controller
                 'alcance' => $validated['alcance'] ?? $auditoria->alcance,
                 'hallazgos' => $validated['hallazgos'] ?? $auditoria->hallazgos,
                 'fecha_fin' => $validated['fecha_fin'] ?? $auditoria->fecha_fin,
-                'actualizado_por' => auth()->id(),
+                'actualizado_por' => auth()->id() ?? 1,
             ]);
 
             DB::commit();
@@ -116,7 +114,7 @@ class AuditoriaController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error al actualizar auditoría: ' . $e->getMessage());
+            Log::error('ERROR UPDATE AUDITORIA: ' . $e->getMessage());
 
             return redirect()->back()
                 ->with('error', $e->getMessage());
@@ -139,7 +137,7 @@ class AuditoriaController extends Controller
                 ->with('success', 'Auditoría eliminada correctamente.');
 
         } catch (\Exception $e) {
-            Log::error('Error al eliminar auditoría: ' . $e->getMessage());
+            Log::error('ERROR DELETE AUDITORIA: ' . $e->getMessage());
 
             return redirect()->back()
                 ->with('error', $e->getMessage());
@@ -152,9 +150,7 @@ class AuditoriaController extends Controller
         $anio = date('Y');
         $mes = date('m');
 
-        $ultimo = Auditoria::whereYear('created_at', $anio)
-            ->whereMonth('created_at', $mes)
-            ->orderBy('id', 'desc')
+        $ultimo = Auditoria::orderBy('id', 'desc')
             ->lockForUpdate()
             ->first();
 

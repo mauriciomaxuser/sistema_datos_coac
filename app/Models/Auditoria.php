@@ -21,25 +21,18 @@ class Auditoria extends Model
         'actualizado_por'
     ];
 
-    /**
-     * Relación con el auditor
-     */
+    public $timestamps = true;
+
     public function usuarioAuditor()
     {
         return $this->belongsTo(Usuario::class, 'auditor_id');
     }
 
-    /**
-     * Relación con usuario creador
-     */
     public function creadoPor()
     {
         return $this->belongsTo(Usuario::class, 'creado_por');
     }
 
-    /**
-     * Relación con usuario actualizador
-     */
     public function actualizadoPor()
     {
         return $this->belongsTo(Usuario::class, 'actualizado_por');
