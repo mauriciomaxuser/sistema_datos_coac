@@ -72,5 +72,10 @@ class Auditoria extends Model
         
         return $query;
     }
+    public function creadoPor()
+    {
+        return $this->belongsTo(Usuario::class, 'creado_por');
+    }
+
 
 }
