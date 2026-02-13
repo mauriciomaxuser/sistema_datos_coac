@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class AuditoriaController extends Controller
 {
@@ -37,12 +38,31 @@ class AuditoriaController extends Controller
     public function store(Request $request)
     {
         try {
+            // 🔴 PASO 1: CONVERTIR FECHA FIN DE DD/MM/YYYY a YYYY-MM-DD
+            $fecha_fin_original = $request->fecha_fin;
+            
+            if ($request->has('fecha_fin') && !empty($request->fecha_fin)) {
+                try {
+                    // Intentar convertir desde formato DD/MM/YYYY
+                    if (strpos($request->fecha_fin, '/') !== false) {
+                        $partes = explode('/', $request->fecha_fin);
+                        // Formato: DD/MM/YYYY
+                        if (count($partes) === 3) {
+                            $fecha_formateada = $partes[2] . '-' . $partes[1] . '-' . $partes[0];
+                            $request->merge(['fecha_fin' => $fecha_formateada]);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Error al convertir fecha: ' . $e->getMessage());
+                }
+            }
+
             // ✅ VALIDACIÓN SIN HORAS - SOLO LOS CAMPOS DEL FORMULARIO
             $validated = $request->validate([
                 'tipo_aud' => 'required|in:interna,externa',
                 'auditor_id' => 'required|exists:usuarios,id',
                 'fecha_inicio' => 'required|date',
-                'fecha_fin' => 'required|date|after:today',
+                'fecha_fin' => 'required|date|after:fecha_inicio',
                 'estado_aud' => 'required|in:planificada,proceso,completada,revisada,cancelada',
                 'alcance' => 'nullable|string|max:1000',
                 'hallazgos' => 'nullable|string|max:2000',
@@ -54,14 +74,15 @@ class AuditoriaController extends Controller
                 'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
                 'fecha_inicio.date' => 'La fecha de inicio no tiene un formato válido.',
                 'fecha_fin.required' => 'La fecha de finalización es obligatoria.',
-                'fecha_fin.date' => 'La fecha de finalización no tiene un formato válido.',
-                'fecha_fin.after' => 'La fecha de finalización debe ser posterior a hoy.',
+                'fecha_fin.date' => 'La fecha de finalización no tiene un formato válido. Use DD/MM/YYYY',
+                'fecha_fin.after' => 'La fecha de finalización debe ser posterior a la fecha de inicio.',
                 'estado_aud.required' => 'El estado de la auditoría es obligatorio.',
                 'estado_aud.in' => 'El estado seleccionado no es válido.',
                 'alcance.max' => 'El alcance no debe exceder los 1000 caracteres.',
                 'hallazgos.max' => 'Los hallazgos no deben exceder los 2000 caracteres.',
             ]);
             
+            // Validar rol del auditor
             $auditor = Usuario::find($validated['auditor_id']);
             $rolesPermitidos = ['auditor', 'auditor_interno', 'auditor_externo'];
             
@@ -80,11 +101,11 @@ class AuditoriaController extends Controller
                 // ✅ Crear la auditoría - SIN CAMPOS DE HORA
                 $auditoria = Auditoria::create([
                     'codigo' => $codigo,
-                    'tipo' => $validated['tipo_aud'],      // Mapeo: tipo_aud → tipo
+                    'tipo' => $validated['tipo_aud'],
                     'auditor_id' => $validated['auditor_id'],
                     'fecha_inicio' => $validated['fecha_inicio'],
                     'fecha_fin' => $validated['fecha_fin'],
-                    'estado' => $validated['estado_aud'],  // Mapeo: estado_aud → estado
+                    'estado' => $validated['estado_aud'],
                     'alcance' => $validated['alcance'] ?? null,
                     'hallazgos' => $validated['hallazgos'] ?? null,
                     'creado_por' => auth()->id(),
@@ -115,7 +136,6 @@ class AuditoriaController extends Controller
         }
     }
 
-
     public function show(string $id)
     {
         try {
@@ -135,24 +155,32 @@ class AuditoriaController extends Controller
         }
     }
 
- 
     public function update(Request $request, string $id)
     {
         try {
             $auditoria = Auditoria::findOrFail($id);
             
+            // 🔴 CONVERTIR FECHA FIN SI VIENE EN FORMATO DD/MM/YYYY
+            if ($request->has('fecha_fin') && !empty($request->fecha_fin) && strpos($request->fecha_fin, '/') !== false) {
+                $partes = explode('/', $request->fecha_fin);
+                if (count($partes) === 3) {
+                    $fecha_formateada = $partes[2] . '-' . $partes[1] . '-' . $partes[0];
+                    $request->merge(['fecha_fin' => $fecha_formateada]);
+                }
+            }
+            
             $validated = $request->validate([
                 'estado' => 'required|in:planificada,proceso,completada,revisada,cancelada',
                 'alcance' => 'nullable|string|max:1000',
                 'hallazgos' => 'nullable|string|max:2000',
-                'fecha_fin' => 'nullable|date|after:today',
+                'fecha_fin' => 'nullable|date|after:' . $auditoria->fecha_inicio,
             ], [
                 'estado.required' => 'El estado es obligatorio.',
                 'estado.in' => 'El estado seleccionado no es válido.',
                 'alcance.max' => 'El alcance no debe exceder los 1000 caracteres.',
                 'hallazgos.max' => 'Los hallazgos no deben exceder los 2000 caracteres.',
                 'fecha_fin.date' => 'La fecha de finalización no tiene un formato válido.',
-                'fecha_fin.after' => 'La fecha de finalización debe ser posterior a hoy.',
+                'fecha_fin.after' => 'La fecha de finalización debe ser posterior a la fecha de inicio.',
             ]);
             
             DB::beginTransaction();
@@ -190,7 +218,6 @@ class AuditoriaController extends Controller
         }
     }
 
-
     public function destroy(string $id)
     {
         try {
@@ -223,7 +250,6 @@ class AuditoriaController extends Controller
                 ->with('error', 'Error al eliminar la auditoría: ' . $e->getMessage());
         }
     }
-
 
     private function generarCodigoAuditoria($tipo_aud)
     {
