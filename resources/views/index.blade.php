@@ -2095,29 +2095,80 @@ Swal.fire({
         Inventario de todas las actividades de tratamiento de datos personales
     </p>
 
+    @if ($errors->any())
+        <div style="background-color: #f8d7da; 
+                    color: #721c24; 
+                    padding: 10px; 
+                    border-radius: 5px; 
+                    margin-bottom: 15px;">
+            <strong>⚠ Debes corregir lo siguiente:</strong>
+            <ul style="margin-top: 5px;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                document.getElementById("procesamiento").style.display = "block";
+            });
+        </script>
+    @endif
+
     <form method="POST" action="{{ route('actividades.store') }}">
         @csrf
 
         <div class="form-row">
             <div class="form-group">
-                <label>Código de Actividad *</label>
-                <input type="text" name="codigo">
+                <label style="font-weight: 600;">Código de Actividad *</label>
+    
+                <div style="position: relative;">
+                    <input type="text"
+                        value="(Generado automáticamente)"
+                        readonly
+                        style="width: 100%;
+                                padding: 10px 12px;
+                                border: 1px solid #ccc;
+                                border-radius: 6px;
+                                background-color: #f5f7fa;
+                                color: #555;
+                                font-style: italic;">
+        
+                    <span style="position: absolute;
+                                right: 10px;
+                                top: 50%;
+                                transform: translateY(-50%);
+                                font-size: 12px;
+                                color: #888;">
+                        Auto
+                    </span>
+                </div>
             </div>
 
             <div class="form-group">
                 <label>Nombre de la Actividad *</label>
-                <input type="text" name="nombre">
+                <input type="text" name="nombre" value="{{ old('nombre') }}">
             </div>
 
             <div class="form-group">
                 <label>Responsable *</label>
-                <input type="text" name="responsable">
+                <select name="responsable">
+                    <option value="">Seleccionar responsable...</option>
+
+                    @foreach($miembros as $miembro)
+                        <option value="{{ $miembro->nombre_completo }}"
+                            {{ old('responsable') == $miembro->nombre_completo ? 'selected' : '' }}>
+                            {{ $miembro->nombre_completo }} - {{ $miembro->cedula }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
         </div>
 
         <div class="form-group">
             <label>Finalidad del Tratamiento *</label>
-            <textarea name="finalidad" rows="3"></textarea>
+            <textarea name="finalidad" rows="3">{{ old('finalidad') }}</textarea>
         </div>
 
         <div class="form-row">
@@ -2125,27 +2176,27 @@ Swal.fire({
                 <label>Base Legal *</label>
                 <select name="base_legal">
                     <option value="">Seleccionar...</option>
-                    <option value="consentimiento">Consentimiento</option>
-                    <option value="contrato">Ejecución de Contrato</option>
-                    <option value="legal">Obligación Legal</option>
-                    <option value="interes">Interés Legítimo</option>
+                    <option value="consentimiento" {{ old('base_legal') == 'consentimiento' ? 'selected' : '' }}>Consentimiento</option>
+                    <option value="contrato" {{ old('base_legal') == 'contrato' ? 'selected' : '' }}>Ejecución de Contrato</option>
+                    <option value="legal" {{ old('base_legal') == 'legal' ? 'selected' : '' }}>Obligación Legal</option>
+                    <option value="interes" {{ old('base_legal') == 'interes' ? 'selected' : '' }}>Interés Legítimo</option>
                 </select>
             </div>
 
             <div class="form-group">
                 <label>Categorías de Datos</label>
-                <input type="text" name="categorias_datos">
+                <input type="text" name="categorias_datos" value="{{ old('categorias_datos') }}">
             </div>
 
             <div class="form-group">
                 <label>Plazo de Conservación</label>
-                <input type="text" name="plazo_conservacion">
+                <input type="text" name="plazo_conservacion" value="{{ old('plazo_conservacion') }}">
             </div>
         </div>
 
         <div class="form-group">
             <label>Medidas de Seguridad</label>
-            <textarea name="medidas_seguridad" rows="3"></textarea>
+            <textarea name="medidas_seguridad" rows="3">{{ old('medidas_seguridad') }}</textarea>
         </div>
 
         <button type="submit" class="btn btn-primary">
@@ -2206,6 +2257,33 @@ Swal.fire({
         </div>
 
     </div>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        @if ($errors->any())
+            activarModuloProcesamiento();
+        @endif
+
+        @if(session('success'))
+            activarModuloProcesamiento();
+        @endif
+
+        function activarModuloProcesamiento() {
+            // Oculta todas las secciones
+            document.querySelectorAll('.content-section').forEach(function(section) {
+                section.style.display = 'none';
+            });
+
+            // Muestra solo procesamiento
+            var modulo = document.getElementById('procesamiento');
+            if (modulo) {
+                modulo.style.display = 'block';
+            }
+        }
+
+    });
+</script>
+
 </div> 
 
 <!-- AUDITORÍAS -->
