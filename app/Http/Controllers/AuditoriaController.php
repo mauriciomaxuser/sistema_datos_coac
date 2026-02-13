@@ -14,25 +14,22 @@ class AuditoriaController extends Controller
     /**
      * Display a listing of the resource.
      */
-public function index()
-{
-    // ✅ SOLO UNA ASIGNACIÓN - Trae SOLO auditores internos y externos activos
-    $usuarios = Usuario::whereIn('rol', ['auditor', 'auditor_interno', 'auditor_externo'])
-                   ->where('estado', 'activo')
-                   ->orderBy('nombre', 'asc')
-                   ->get();
+    public function index()
+    {
+        // Trae SOLO auditores internos y externos activos
+        $usuarios = Usuario::whereIn('rol', ['auditor', 'auditor_interno', 'auditor_externo'])
+                       ->where('estado', 'activo')
+                       ->orderBy('nombre', 'asc')
+                       ->get();
 
-    // Traer auditorías con la relación del auditor
-    $auditorias = Auditoria::with('usuarioAuditor')
-                   ->orderBy('created_at', 'desc')
-                   ->get();
+        // Traer auditorías con la relación del auditor
+        $auditorias = Auditoria::with('usuarioAuditor')
+                       ->orderBy('created_at', 'desc')
+                       ->get();
 
-    // Pasar ambas a la vista
-    return view('index', compact('auditorias', 'usuarios'));
-}
-
-
-
+        // Pasar ambas a la vista
+        return view('index', compact('auditorias', 'usuarios'));
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -40,14 +37,12 @@ public function index()
     public function store(Request $request)
     {
         try {
-            // Validación de datos
+            // ✅ VALIDACIÓN SIN HORAS - SOLO LOS CAMPOS DEL FORMULARIO
             $validated = $request->validate([
                 'tipo_aud' => 'required|in:interna,externa',
                 'auditor_id' => 'required|exists:usuarios,id',
-                'fecha_inicio' => 'required|date|date_format:Y-m-d',
-                'hora_inicio' => 'required|date_format:H:i',
-                'fecha_fin' => 'required|date|date_format:Y-m-d|after:fecha_inicio',
-                'hora_fin' => 'required|date_format:H:i',
+                'fecha_inicio' => 'required|date',
+                'fecha_fin' => 'required|date|after:today',
                 'estado_aud' => 'required|in:planificada,proceso,completada,revisada,cancelada',
                 'alcance' => 'nullable|string|max:1000',
                 'hallazgos' => 'nullable|string|max:2000',
@@ -58,26 +53,21 @@ public function index()
                 'auditor_id.exists' => 'El auditor seleccionado no existe en el sistema.',
                 'fecha_inicio.required' => 'La fecha de inicio es obligatoria.',
                 'fecha_inicio.date' => 'La fecha de inicio no tiene un formato válido.',
-                'fecha_inicio.date_format' => 'El formato de fecha de inicio es incorrecto.',
-                'hora_inicio.required' => 'La hora de inicio es obligatoria.',
-                'hora_inicio.date_format' => 'El formato de hora de inicio es incorrecto (HH:MM).',
                 'fecha_fin.required' => 'La fecha de finalización es obligatoria.',
                 'fecha_fin.date' => 'La fecha de finalización no tiene un formato válido.',
-                'fecha_fin.date_format' => 'El formato de fecha de finalización es incorrecto.',
-                'fecha_fin.after' => 'La fecha de finalización debe ser posterior a la fecha de inicio.',
-                'hora_fin.required' => 'La hora de finalización es obligatoria.',
-                'hora_fin.date_format' => 'El formato de hora de finalización es incorrecto (HH:MM).',
+                'fecha_fin.after' => 'La fecha de finalización debe ser posterior a hoy.',
                 'estado_aud.required' => 'El estado de la auditoría es obligatorio.',
                 'estado_aud.in' => 'El estado seleccionado no es válido.',
                 'alcance.max' => 'El alcance no debe exceder los 1000 caracteres.',
                 'hallazgos.max' => 'Los hallazgos no deben exceder los 2000 caracteres.',
             ]);
             
-            // Validar que el usuario tenga rol de auditor
             $auditor = Usuario::find($validated['auditor_id']);
-            if ($auditor->rol !== 'auditor') {
+            $rolesPermitidos = ['auditor', 'auditor_interno', 'auditor_externo'];
+            
+            if (!in_array($auditor->rol, $rolesPermitidos)) {
                 throw ValidationException::withMessages([
-                    'auditor_id' => 'El usuario seleccionado no tiene rol de auditor.',
+                    'auditor_id' => 'El usuario seleccionado no tiene un rol de auditor válido.',
                 ]);
             }
             
@@ -87,16 +77,14 @@ public function index()
                 // Generar código único para la auditoría
                 $codigo = $this->generarCodigoAuditoria($validated['tipo_aud']);
                 
-                // Crear la auditoría
+                // ✅ Crear la auditoría - SIN CAMPOS DE HORA
                 $auditoria = Auditoria::create([
                     'codigo' => $codigo,
-                    'tipo' => $validated['tipo_aud'],
+                    'tipo' => $validated['tipo_aud'],      // Mapeo: tipo_aud → tipo
                     'auditor_id' => $validated['auditor_id'],
                     'fecha_inicio' => $validated['fecha_inicio'],
-                    'hora_inicio' => $validated['hora_inicio'],
                     'fecha_fin' => $validated['fecha_fin'],
-                    'hora_fin' => $validated['hora_fin'],
-                    'estado' => $validated['estado_aud'],
+                    'estado' => $validated['estado_aud'],  // Mapeo: estado_aud → estado
                     'alcance' => $validated['alcance'] ?? null,
                     'hallazgos' => $validated['hallazgos'] ?? null,
                     'creado_por' => auth()->id(),
@@ -109,6 +97,7 @@ public function index()
                     
             } catch (\Exception $e) {
                 DB::rollBack();
+                Log::error('Error al crear auditoría en transacción: ' . $e->getMessage());
                 throw $e;
             }
             
@@ -122,17 +111,14 @@ public function index()
             Log::error('Error al crear auditoría: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Error al registrar la auditoría.');
+                ->with('error', 'Error al registrar la auditoría: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         try {
-            // Cargar auditoría con relaciones
             $auditoria = Auditoria::with(['usuarioAuditor', 'creadoPor'])
                 ->findOrFail($id);
             
@@ -149,45 +135,34 @@ public function index()
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+ 
     public function update(Request $request, string $id)
     {
         try {
             $auditoria = Auditoria::findOrFail($id);
             
-            // Validación de datos
             $validated = $request->validate([
                 'estado' => 'required|in:planificada,proceso,completada,revisada,cancelada',
                 'alcance' => 'nullable|string|max:1000',
                 'hallazgos' => 'nullable|string|max:2000',
-                'observaciones' => 'nullable|string|max:2000',
-                'fecha_fin' => 'nullable|date|date_format:Y-m-d|after:fecha_inicio',
-                'hora_fin' => 'nullable|date_format:H:i',
+                'fecha_fin' => 'nullable|date|after:today',
             ], [
                 'estado.required' => 'El estado es obligatorio.',
                 'estado.in' => 'El estado seleccionado no es válido.',
                 'alcance.max' => 'El alcance no debe exceder los 1000 caracteres.',
                 'hallazgos.max' => 'Los hallazgos no deben exceder los 2000 caracteres.',
-                'observaciones.max' => 'Las observaciones no deben exceder los 2000 caracteres.',
                 'fecha_fin.date' => 'La fecha de finalización no tiene un formato válido.',
-                'fecha_fin.date_format' => 'El formato de fecha de finalización es incorrecto.',
-                'fecha_fin.after' => 'La fecha de finalización debe ser posterior a la fecha de inicio.',
-                'hora_fin.date_format' => 'El formato de hora de finalización es incorrecto.',
+                'fecha_fin.after' => 'La fecha de finalización debe ser posterior a hoy.',
             ]);
             
             DB::beginTransaction();
             
             try {
-                // Actualizar auditoría
                 $auditoria->update([
                     'estado' => $validated['estado'],
                     'alcance' => $validated['alcance'] ?? $auditoria->alcance,
                     'hallazgos' => $validated['hallazgos'] ?? $auditoria->hallazgos,
-                    'observaciones' => $validated['observaciones'] ?? $auditoria->observaciones,
                     'fecha_fin' => $validated['fecha_fin'] ?? $auditoria->fecha_fin,
-                    'hora_fin' => $validated['hora_fin'] ?? $auditoria->hora_fin,
                     'actualizado_por' => auth()->id(),
                 ]);
                 
@@ -198,6 +173,7 @@ public function index()
                     
             } catch (\Exception $e) {
                 DB::rollBack();
+                Log::error('Error al actualizar auditoría en transacción: ' . $e->getMessage());
                 throw $e;
             }
             
@@ -210,19 +186,16 @@ public function index()
         } catch (\Exception $e) {
             Log::error('Error al actualizar auditoría: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Error al actualizar la auditoría.');
+                ->with('error', 'Error al actualizar la auditoría: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(string $id)
     {
         try {
             $auditoria = Auditoria::findOrFail($id);
             
-            // Verificar si se puede eliminar (solo si está planificada)
             if ($auditoria->estado !== 'planificada') {
                 return redirect()->back()
                     ->with('error', 'Solo se pueden eliminar auditorías en estado "Planificada".');
@@ -240,20 +213,21 @@ public function index()
                     
             } catch (\Exception $e) {
                 DB::rollBack();
+                Log::error('Error al eliminar auditoría en transacción: ' . $e->getMessage());
                 throw $e;
             }
             
         } catch (\Exception $e) {
             Log::error('Error al eliminar auditoría: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Error al eliminar la auditoría.');
+                ->with('error', 'Error al eliminar la auditoría: ' . $e->getMessage());
         }
     }
 
 
-    private function generarCodigoAuditoria($tipo)
+    private function generarCodigoAuditoria($tipo_aud)
     {
-        $prefijo = strtoupper(substr($tipo, 0, 1)); // I para interna, E para externa
+        $prefijo = strtoupper(substr($tipo_aud, 0, 1)); 
         $anio = date('Y');
         $mes = date('m');
         

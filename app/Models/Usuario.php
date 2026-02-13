@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use App\Notifications\ResetPasswordNotification;
 
 class Usuario extends Authenticatable
 {
@@ -111,6 +112,14 @@ class Usuario extends Authenticatable
         return trim($this->nombre . ' ' . $this->apellido);
     }
 
+
+    /**
+     * Envia el correo de recuperación de contraseña al usuario
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
     /**
      * Eventos del modelo
      */

@@ -11,6 +11,8 @@ use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\IncidenteSeguridadController;
 use App\Http\Controllers\MiembroController;
 use App\Http\Controllers\SolicitudDsarController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\RegisterController;
@@ -88,6 +90,19 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     Route::get('/', [UsuarioController::class, 'index'])->name('index');
 });
+
+// RECUPERAR CONTRASEÑA ----------------------------
+// solicitar correo
+Route::get('/forgot-password', [ForgotPasswordController::class,'create'])->name('password.request');
+Route::post('/forgot-password', [ForgotPasswordController::class,'send'])->name('password.email');
+
+// abrir link del correo
+Route::get('/reset-password/{token}', [ResetPasswordController::class,'create'])->name('password.reset');
+
+// guardar nueva contraseña
+Route::post('/reset-password', [ResetPasswordController::class,'update'])->name('password.update');
+
+
 // Registro
 Route::get('/register', [RegisterController::class, 'showRegister'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
