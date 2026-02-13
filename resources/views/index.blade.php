@@ -2400,7 +2400,6 @@ Swal.fire({
                     <th>Fecha Inicio</th>
                     <th>Fecha Fin</th>
                     <th>Estado</th>
-                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -2425,9 +2424,7 @@ Swal.fire({
                         @endif
                     </td>
                     <td>
-                        <a href="{{ route('auditorias.show', $auditoria->id) }}" class="btn btn-secondary" style="padding: 8px 15px;">
-                            Ver Detalle
-                        </a>
+                        
                     </td>
                 </tr>
                 @empty
