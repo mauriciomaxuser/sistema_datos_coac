@@ -77,11 +77,9 @@
 
             <button type="submit" class="btn btn-primary">
                 Ingresar
-            </button>
-           
+            </button> 
         </form>
     </main>
-
 </div>
 
 <!-- SWEETALERT2 -->

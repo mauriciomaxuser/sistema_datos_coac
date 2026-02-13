@@ -8,16 +8,19 @@ class Auditoria extends Model
 {
     protected $table = 'auditorias';
 
-    protected $fillable = [
-        'codigo',  
+    
+        protected $fillable = [
+        'codigo',
         'tipo',
         'auditor_id',
         'fecha_inicio',
         'fecha_fin',
         'estado',
         'alcance',
-        'hallazgos'
+        'hallazgos',
+        'creado_por'
     ];
+
 
     /**
      * Boot method para generar código automático
